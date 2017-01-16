@@ -7,7 +7,10 @@ all: setup
 	sleep 1
 	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
 
-
+alu: setup
+	$(CC) $(CFLAGS) src/lc4_alu.v
+	sleep 1
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
 
 setup:
 	rm -rf outputs
