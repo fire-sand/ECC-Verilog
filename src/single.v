@@ -22,7 +22,7 @@ module lc4_processor(clk, rst, gwe,
                      );
 
    /* DO NOT MODIFY THIS CODE */
-   parameter WORD_SIZE = 64;
+   parameter WORD_SIZE = 16;
    input         clk;                // Main clock
    input         rst;                // Global reset
    input         gwe;                // Global we for single-step clock
@@ -43,8 +43,8 @@ module lc4_processor(clk, rst, gwe,
    output        test_nzp_we;        // Testbench: NZP condition codes write enable
    output [2:0]  test_nzp_new_bits;  // Testbench: value to write to NZP bits
    output        test_dmem_we;       // Testbench: data memory write enable
-   output [15:0] test_dmem_addr;     // Testbench: address to read/write memory
-   output [15:0] test_dmem_data;     // Testbench: value read/writen from/to memory
+   output [WORD_SIZE-1:0] test_dmem_addr;     // Testbench: address to read/write memory
+   output [WORD_SIZE-1:0] test_dmem_data;     // Testbench: value read/writen from/to memory
 
    input  [7:0]  switch_data;        // Current settings of the Zedboard switches
    output [15:0] seven_segment_data; // Data to display to the Zedboard LCD
@@ -82,9 +82,10 @@ module lc4_processor(clk, rst, gwe,
    lc4_decoder lc4decoder (i_cur_insn, r1sel, r1re, r2sel, r2re, wsel, regfile_we, nzp_we, select_pc_plus_one, is_load, is_store, is_branch, is_control_insn);
 
    //Registers
-   wire[15:0] r1data, r2data, wdata;
+   wire[WORD_SIZE-1:0] r1data, r2data, wdata;
    //(clk, gwe, rst, r1sel, r1data, r2sel, r2data, wsel, wdata, we);
-   lc4_regfile lc4regfile (clk, gwe, rst, r1sel, r1data, r2sel, r2data, wsel, wdata, regfile_we);
+   lc4_regfile #(.WORD_SIZE(WORD_SIZE))
+      lc4regfile (clk, gwe, rst, r1sel, r1data, r2sel, r2data, wsel, wdata, regfile_we);
 
    //PC_plus_one
    wire[15:0] pc_plus_one;
@@ -92,7 +93,7 @@ module lc4_processor(clk, rst, gwe,
 
 
    //ALU
-   wire[15:0] alu_out;
+   wire[WORD_SIZE:0] alu_out;
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
       lc4alu (i_cur_insn, pc, r1data, r2data, alu_out);
@@ -102,7 +103,7 @@ module lc4_processor(clk, rst, gwe,
    control_mux controlmux (select_pc_plus_one, alu_out, pc_plus_one, control_mux_out);
 
    //Register input Mux
-   wire[15:0] reg_input_mux_out;
+   wire[WORD_SIZE:0] reg_input_mux_out;
    //takes in is_load and choses between control_mux_out or memory_out(i_cur_dmem_data)
    //only need to assign wire wdata write enable and select are taken care of by decoder
    //assign wd to ^

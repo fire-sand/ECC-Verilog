@@ -1,0 +1,1 @@
+Will need to take into account the one cyle delay of reading from bram. Meaning when you select the place you want to read out of, it will take one extra cycle. This may cause issues when reading from memory and loading it into a register.

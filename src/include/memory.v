@@ -11,8 +11,8 @@ module lc4_memory(idclk,
                   gwe,
                   rst,
                   i1addr,
-						i2addr,
-						i1out,
+                  i2addr,
+                  i1out,
                   i2out,
                   daddr,
                   din,
@@ -22,24 +22,24 @@ module lc4_memory(idclk,
                   vout,
                   vclk
                   );
-	
-	input 			idclk;
-	input 			i1re;
-	input 			i2re;
-	input 			dre;
-	input 			gwe;
-	input 			rst;
-	input [15:0] 	i1addr;
-	input [15:0] 	i2addr;
-	output [15:0] 	i1out;
-	output [15:0] 	i2out;
-	input [15:0] 	daddr;
-	input [15:0] 	din;
-	output [15:0] 	dout;
-	input				dwe;
-	input [15:0]	vaddr;
-	output [15:0]	vout;
-	input vclk;
+
+  input       idclk;
+  input       i1re;
+  input       i2re;
+  input       dre;
+  input       gwe;
+  input       rst;
+  input [15:0]  i1addr;
+  input [15:0]  i2addr;
+  output [15:0]   i1out;
+  output [15:0]   i2out;
+  input [15:0]  daddr;
+  input [15:0]  din;
+  output [15:0]   dout;
+  input       dwe;
+  input [15:0]  vaddr;
+  output [15:0] vout;
+  input vclk;
 
    wire [15:0] i1out_not_delayed;
    wire [15:0] i2out_not_delayed;
@@ -67,18 +67,18 @@ module lc4_memory(idclk,
    wire [15:0] i2out_delayed;
 
    delay_eight_cycles #(16) delayer1 (.clk(idclk),
-		                      .gwe(gwe),
-		                      .rst(rst),
-		                      .in_value(i1out_not_delayed),
-		                      .out_value(i1out_delayed));
-   
+                          .gwe(gwe),
+                          .rst(rst),
+                          .in_value(i1out_not_delayed),
+                          .out_value(i1out_delayed));
+
    delay_eight_cycles #(16) delayer2 (.clk(idclk),
-		                      .gwe(gwe),
-		                      .rst(rst),
-		                      .in_value(i2out_not_delayed),
-		                      .out_value(i2out_delayed));
-   
+                          .gwe(gwe),
+                          .rst(rst),
+                          .in_value(i2out_not_delayed),
+                          .out_value(i2out_delayed));
+
    assign i1out = `INSN_CACHE ? i1out_delayed : i1out_not_delayed;
    assign i2out = `INSN_CACHE ? i2out_delayed : i2out_not_delayed;
-   
-endmodule 
+
+endmodule

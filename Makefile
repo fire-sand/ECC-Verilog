@@ -2,8 +2,13 @@ CC=yosys
 CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o outputs/test_syn.v
 
 all: setup
-	$(CC) $(CFLAGS) src/lc4_single.v src/include/register.v src/lc4_alu.v \
-		src/lc4_divider.v src/lc4_regfile.v src/include/lc4_decoder.v
+	$(CC) $(CFLAGS) src/single.v src/register.v src/alu.v \
+		src/regfile.v src/decoder.v \
+		#src/include/bram.v src/include/clock_util.v \
+		#src/include/one_pulse.v \
+		#src/include/clkdiv.v \
+		#src/include/delay_eight_cycles.v \
+		#src/include/clkgen.v
 	sleep 1
 	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
 
