@@ -4,6 +4,7 @@ CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o o
 all: setup
 	$(CC) $(CFLAGS) src/single.v src/register.v src/alu.v \
 		src/regfile.v src/decoder.v \
+		src/system.v
 		#src/include/bram.v src/include/clock_util.v \
 		#src/include/one_pulse.v \
 		#src/include/clkdiv.v \
