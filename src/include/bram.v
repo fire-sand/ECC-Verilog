@@ -40,6 +40,21 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    wire          data_we = dwe && (dre || gwe);
    reg [15:0]    mem_out_i, mem_out_i2, mem_out_d;
 
+   initial
+     begin
+        f = 0; // Added to avoid a synthesis warning
+        $display("%s", `MEMORY_IMAGE_FILE);
+      f = $fopen(`MEMORY_IMAGE_FILE, "r");
+      if (f == 0)
+        begin
+           $display("Memory image file %s not found", `MEMORY_IMAGE_FILE);
+           $stop;
+        end
+      $fclose(f);
+      $readmemh(`MEMORY_IMAGE_FILE, IDRAM, 0, 65535);
+     end
+
+
    assign iaddr = (i1re) ? i1addr : i2addr;
 
 
@@ -48,12 +63,12 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
         //#1;
         if (data_we)
           IDRAM[daddr] <= din;
-	if (data_we & daddr[15] & daddr[14])  // Only write vram if address starts with "11"
-	  VRAM[daddr[13:0]] <= din;
-	if (i1re || i2re)
-	  mem_out_i <= IDRAM[iaddr];
-	if (dre)
-	  mem_out_d <= IDRAM[daddr];
+      if (data_we & daddr[15] & daddr[14])  // Only write vram if address starts with "11"
+        VRAM[daddr[13:0]] <= din;
+      if (i1re || i2re)
+        mem_out_i <= IDRAM[iaddr];
+      if (dre)
+        mem_out_d <= IDRAM[daddr];
      end
 
    always @(posedge vclk)

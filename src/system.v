@@ -7,20 +7,86 @@
 module lc4_system(/*Clock input from FPGA pin*/
   CLK,
   RS232_Rx,
+  SWITCH1, SWITCH2, SWITCH3, SWITCH4, SWITCH5, SWITCH6, SWITCH7, SWITCH8,
   RS232_Tx,
   LED1,
   LED2,
   LED3,
   LED4,
+  led_data,
+  dmem_mout_out,
 );
 
   input         CLK;     // System clock Default of 12 MHz
   input RS232_Rx;
+  input SWITCH1, SWITCH2, SWITCH3, SWITCH4, SWITCH5, SWITCH6, SWITCH7, SWITCH8;
   output RS232_Tx;
   output LED1;
   output LED2;
   output LED3;
   output LED4;
+  output [15:0] dmem_mout_out = dmem_mout;
+
+  wire [15:0]   seven_segment_data;
+  output [7:0]    led_data;
+
+  wire GLOBAL_RST = 1;
+  wire GLOBAL_WE;
+  wire dcm_reset_1 = 1'b0;
+  wire dcm_reset_2 = 1'b0;
+  wire proc_clk = CLK;
+  wire pixel_clk = CLK;
+
+  wire [7:0] SWITCH_IN = {SWITCH1, SWITCH2, SWITCH3, SWITCH4, SWITCH5, SWITCH6, SWITCH7, SWITCH8};
+
+  wire          RST_BTN_IN;     // Right push button
+  wire          GWE_BTN_IN;     // Down push button
+  assign RST_BTN_IN = SWITCH_IN[0];
+  assign GWE_BTN_IN = 1'b0;
+
+
+  /* Generate "single-step clock" by one-pulsing the global
+  write-enable. The one-pulse circuitry cleans up the signal edges
+  for us. */
+  wire          global_we_pulse;
+  one_pulse clk_pulse(.clk( proc_clk ),
+                     .rst( dcm_reset_1 | dcm_reset_2 ),
+                     .btn( GWE_BTN_IN ), // FPGA buttons are active-low
+                     .pulse_out( global_we_pulse ));
+
+  /* Clean up trailing edges of the GLOBAL_WE switch input */
+  wire          global_we_switch;
+
+  Nbit_reg #(1, 0) gwe_cleaner(.in(SWITCH_IN[7]), // FPGA switches are active-low
+                              .out( global_we_switch ),
+                              .clk( proc_clk ),
+                              .we( 1'b1 ),
+                              .gwe( 1'b1 ),
+                              .rst( GLOBAL_RST ));
+
+
+  wire          i1re, i2re, dre, gwe_out;
+  lc4_we_gen we_gen(.clk(proc_clk),
+                   .i1re(i1re),
+                   .i2re(i2re),
+                   .dre(dre),
+                   .gwe(gwe_out));
+
+
+  assign GLOBAL_WE = global_we_pulse | (gwe_out & global_we_switch);
+
+
+
+  /* Clean up the edges of the manual reset signal. Only the trailing
+  edge should really matter, though.*/
+  wire          rst_btn;
+  Nbit_reg #(1, 0) reset_cleaner(.in( RST_BTN_IN ),
+                .out( rst_btn ),
+                                .clk( proc_clk ),
+                                .we( 1'b1 ),
+                                .gwe( 1'b1 ),
+                                .rst( dcm_reset_1 | dcm_reset_2 ));
+  or( GLOBAL_RST, dcm_reset_1, dcm_reset_2, rst_btn );
 
   // MEMORY INTERFACE
   // INSTRUCTIONS
@@ -32,12 +98,20 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire          dmem_we;
   wire [15:0]   dmem_mout;
 
+  wire [13:0]   vga_addr;
+  wire [15:0]   vga_data;
+
+  wire          kbdr = 1'b0;
+  wire          kbsr = 1'b0;
+  wire          tsr = 1'b0;
+
   // MEMORY/DEVICE MUX
   wire [15:0]   dmem_out = dmem_we ? 16'h0000 :
                 (dmem_addr == 16'hFE00) ? {kbsr, {15{1'b0}}} :
                 (dmem_addr == 16'hFE02) ? {8'h00, kbdr} :
                 (dmem_addr == 16'hFE08) ? {tsr, {15{1'b0}}} :
                 (dmem_addr < 16'hFE00) ? dmem_mout : 16'h0000;
+
 
 
   // PROCESSOR
@@ -57,6 +131,11 @@ module lc4_system(/*Clock input from FPGA pin*/
                           );
 
   assign imem2_addr = 16'd0;
+  assign RS232_Tx = led_data[0];
+  assign LED1 = led_data[1];
+  assign LED2 = led_data[2];
+  assign LED3 = led_data[3];
+  assign LED4 = led_data[4];
 
   // MEMORY
 
