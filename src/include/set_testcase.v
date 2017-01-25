@@ -7,8 +7,7 @@
  * If Vivado can't find the files, replace this with an absolute path.
  * Windows users probably need to use "/" instead of "\" as the directory separator.
  */
-//`define CODE_PATH "/home/cis371/cis371/Lab2/test_data/"
-`define CODE_PATH "C:/Xilinx/CIS371/SharedGit/Lab2/test_data/"
+`define CODE_PATH "/home/aasif/Documents/School/2016c/SrDesign/RSA-CPU/src/test_data/"
 
 /* Uncomment one of the lines below to specify the test case
  * You will need to restart the behavioral simulation
@@ -22,13 +21,13 @@
  * On the wireframe test, use the +-shaped button pad diagonally opposite the power
  * port to rotate the wireframe on the display.
  */
- 
-//`define TEST_CASE "test_alu"
+
+`define TEST_CASE "test_alu"
 //`define TEST_CASE "test_br"
 // `define TEST_CASE "test_ld_br"
 // `define TEST_CASE "test_all"
 // `define TEST_CASE "house"
- `define TEST_CASE "wireframe"
+// `define TEST_CASE "wireframe"
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE */
 
