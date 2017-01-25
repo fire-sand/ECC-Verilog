@@ -2,6 +2,19 @@ CC=yosys
 CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o outputs/test_syn.v
 # CFLAGS=-p "prep; show -stretch -prefix count -format dot"
 
+all_test: setup
+	iverilog -o outputs/proc_test.out \
+	  src/test_lc4_processor.tf \
+	  src/single.v src/register.v src/alu.v \
+	  src/regfile.v src/decoder.v \
+		src/system.v \
+		src/include/set_testcase.v \
+		src/include/bram.v src/include/memory.v \
+		src/include/delay_eight_cycles.v \
+		src/include/one_pulse.v \
+		src/include/clock_util.v
+	./outputs/proc_test.out
+
 all: setup
 	$(CC) $(CFLAGS) src/single.v src/register.v src/alu.v \
 		src/regfile.v src/decoder.v \

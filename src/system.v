@@ -25,7 +25,8 @@ module lc4_system(/*Clock input from FPGA pin*/
   output LED2;
   output LED3;
   output LED4;
-  output [15:0] dmem_mout_out = dmem_mout;
+  output [15:0] dmem_mout_out;
+  assign dmem_mout_out = dmem_mout;
 
   wire [15:0]   seven_segment_data;
   output [7:0]    led_data;
