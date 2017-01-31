@@ -23,6 +23,7 @@ module lc4_memory(idclk,
                   vclk
                   );
 
+  parameter WORD_SIZE = 16;
   input       idclk;
   input       i1re;
   input       i2re;
@@ -34,8 +35,8 @@ module lc4_memory(idclk,
   output [15:0]   i1out;
   output [15:0]   i2out;
   input [15:0]  daddr;
-  input [15:0]  din;
-  output [15:0]   dout;
+  input [WORD_SIZE-1:0]  din;
+  output [WORD_SIZE-1:0]   dout;
   input       dwe;
   input [15:0]  vaddr;
   output [15:0] vout;
@@ -44,7 +45,8 @@ module lc4_memory(idclk,
    wire [15:0] i1out_not_delayed;
    wire [15:0] i2out_not_delayed;
 
-   bram memory (.idclk(idclk),
+   bram #(.WORD_SIZE(WORD_SIZE))
+     memory (.idclk(idclk),
                 .i1re(i1re),
                 .i2re(i2re),
                 .dre(dre),

@@ -93,14 +93,15 @@ module lc4_processor(clk, rst, gwe,
 
 
    //ALU
-   wire[WORD_SIZE:0] alu_out;
+   wire[WORD_SIZE-1:0] alu_out;
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
       lc4alu (i_cur_insn, pc, r1data, r2data, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
-   wire[15:0] control_mux_out;
-   control_mux controlmux (select_pc_plus_one, alu_out, pc_plus_one, control_mux_out);
+   wire[WORD_SIZE-1:0] control_mux_out;
+   control_mux #(.WORD_SIZE(WORD_SIZE))
+      controlmux (select_pc_plus_one, alu_out, pc_plus_one, control_mux_out);
 
    //Register input Mux
    wire[WORD_SIZE:0] reg_input_mux_out;
@@ -195,8 +196,9 @@ module lc4_processor(clk, rst, gwe,
 endmodule
 
 module control_mux (is_control, alu_out, pc_plus_one, control_out);
+    parameter WORD_SIZE = 16;
     input is_control;
-    input [16:0] alu_out, pc_plus_one; // NOTE this will clip the output of ALU
+    input [WORD_SIZE-1:0] alu_out, pc_plus_one; // NOTE this will clip the output of ALU
     output [15:0] control_out;
 
     assign control_out = (is_control == 1'b0) ? alu_out : pc_plus_one;

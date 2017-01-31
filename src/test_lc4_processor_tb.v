@@ -68,24 +68,24 @@ module test_lc4_processor_tb();
    // Produce gwe and other we signals using same modules as lc4_system
    wire        i1re, i2re, dre, gwe;
    lc4_we_gen we_gen(.clk(clk),
-		     .i1re(i1re),
-		     .i2re(i2re),
-		     .dre(dre),
-		     .gwe(gwe));
+         .i1re(i1re),
+         .i2re(i2re),
+         .dre(dre),
+         .gwe(gwe));
 
 
    // Data and video memory block
    lc4_memory memory (.idclk(clk),
-		      .i1re(i1re),
-		      .i2re(i2re),
-		      .dre(dre),
-		      .gwe(gwe),
-		      .rst(rst),
+          .i1re(i1re),
+          .i2re(i2re),
+          .dre(dre),
+          .gwe(gwe),
+          .rst(rst),
                       .i1addr(cur_pc),
-		      .i2addr(16'd0),      // Not used for scalar processor
+          .i2addr(16'd0),      // Not used for scalar processor
                       .i1out(cur_insn),
                       .daddr(dmem_addr),
-		      .din(dmem_tworite),
+          .din(dmem_tworite),
                       .dout(cur_dmem_data),
                       .dwe(dmem_we),
                       .vclk(1'b0),
@@ -296,7 +296,7 @@ module test_lc4_processor_tb();
             // Advanced to the next cycle
             num_cycles = num_cycles + 1;
 
-	    #40;  // Next cycle
+      #40;  // Next cycle
 
          end // while (!next_instruction)
 
@@ -315,13 +315,13 @@ module test_lc4_processor_tb();
 
          $display("  Execution:          %d", num_exec);
          if (num_cache_stall > 0) begin
-  	    $display("  Cache stalls:       %d", num_cache_stall);
+        $display("  Cache stalls:       %d", num_cache_stall);
          end
          if (num_branch_stall > 0) begin
-	    $display("  Branch stalls:      %d", num_branch_stall);
+      $display("  Branch stalls:      %d", num_branch_stall);
          end
          if (num_load_stall > 0) begin
-	    $display("  Load stalls:        %d", num_load_stall);
+      $display("  Load stalls:        %d", num_load_stall);
          end
       end
 

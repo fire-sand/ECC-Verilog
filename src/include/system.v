@@ -1,11 +1,11 @@
 /* lc4_system.v
  * DO NOT MODIFY
  */
-
+/* NOTE NOTE NOTE NOTE NOTE DO NOT USE ME!!!!!!!!!!! for reference ONLY */
 `timescale 1ns / 1ps
 
 module lc4_system(/*Clock input from FPGA pin*/
-                  CLK_100MHz,
+                  CLK,
 
                   /*VGA ports*/
                   VGA_HSYNCH,
@@ -19,14 +19,14 @@ module lc4_system(/*Clock input from FPGA pin*/
           ZED_PB,
                   SWITCH_IN
           );
-
-   input         CLK_100MHz;     // System clock
+   parameter WORD_SIZE = 32;
+   input         CLK;     // System clock
    // PMG: Zedboard doesn't have a 32MHz clock,
    // so we need to generate one using a DCM (below)
    input [7:0]   SWITCH_IN;      // Zedboard switches
    input [4:0]   ZED_PB;         // Zedboard push-buttons
 
-   //VGA:
+   //VGAv
    // PMG: removed outputs not used on the Zedboard
    output        VGA_HSYNCH;               // horizontal sync for the VGA output connector
    output        VGA_VSYNCH;               // vertical sync for the VGA output connector
@@ -47,6 +47,7 @@ module lc4_system(/*Clock input from FPGA pin*/
    // DIO4 lights
    wire [15:0]   seven_segment_data;
    wire [7:0]    led_data;
+   assign LDOUT = led_data;
 
    // CLOCK MANAGEMENT
    wire          GLOBAL_WE;    //global we, toggled to build a single-step clock
@@ -58,6 +59,9 @@ module lc4_system(/*Clock input from FPGA pin*/
    wire          dcm_reset_2;  //digital clock manager reset signal
    wire          GLOBAL_RST;   //global reset signal
    wire          proc_clk;     //the processor clock, same as memory clock
+   assign proc_clk = CLK;
+   assign dcm_reset_1 = 0;  //digital clock manager reset signal
+   assign dcm_reset_2 = 0;  //digital clock manager reset signal
 
    //Currently, the pixel clock is formed by dividing the 100MHz clock by
    //4 using CLKDV, and the system clock (for the pipeline, etc.) is the same
@@ -68,22 +72,22 @@ module lc4_system(/*Clock input from FPGA pin*/
 `ifndef __ICARUS__
 
    //PMG: We can only route the 100MHz clock to one DCM.
-   clkgen clkgen_32MHz( .CLK_IN1( CLK_100MHz ),
-            .CLK_OUT1( clk_32MHz ), // 32 Mhz
-            .CLK_OUT2( pixel_clk ), // 25 MHz
-            .CLK_OUT3( exp_clk ), // 16 MHz
-            .RESET( dcm_reset_1 ));
+   //clkgen clkgen_32MHz( .CLK_IN1( CLK_100MHz ),
+            //.CLK_OUT1( clk_32MHz ), // 32 Mhz
+            //.CLK_OUT2( pixel_clk ), // 25 MHz
+            //.CLK_OUT3( exp_clk ), // 16 MHz
+            //.RESET( dcm_reset_1 ));
 
-   //PMG: a single Zedboard DCM cannot generate 32MHz, 25MHz, and 2MHz
-   //simultaneously because the range is too large.  So, we will build
-   //a custom divider to turn the 16MHz proc clock into 2MHz for PS/2.
-   clkdiv clkdiv_2MHz( .clk_16MHz(exp_clk),
-             .reset(dcm_reset_2),
-             .clk_2MHz(ps2_clk) );
+   ////PMG: a single Zedboard DCM cannot generate 32MHz, 25MHz, and 2MHz
+   ////simultaneously because the range is too large.  So, we will build
+   ////a custom divider to turn the 16MHz proc clock into 2MHz for PS/2.
+   //clkdiv clkdiv_2MHz( .clk_16MHz(exp_clk),
+             //.reset(dcm_reset_2),
+             //.clk_2MHz(ps2_clk) );
 
 `endif
 
-   assign        proc_clk = exp_clk;
+   //assign        proc_clk = exp_clk;
 
    /* Generate "single-step clock" by one-pulsing the global
     write-enable. The one-pulse circuitry cleans up the signal edges
@@ -134,9 +138,9 @@ module lc4_system(/*Clock input from FPGA pin*/
    wire [15:0]   imem1_out, imem2_out;
    // DATA MEMORY
    wire [15:0]   dmem_addr;
-   wire [15:0]   dmem_in;
+   wire [WORD_SIZE-1:0]   dmem_in;
    wire          dmem_we;
-   wire [15:0]   dmem_mout;
+   wire [WORD_SIZE-1:0]   dmem_mout;
 
    // DEVICE INTERFACES
    // P/S2 KEYBOARD
@@ -153,22 +157,24 @@ module lc4_system(/*Clock input from FPGA pin*/
    wire [15:0]   vga_data;
 
    // MEMORY/DEVICE MUX
-   wire [15:0]   dmem_out = dmem_we ? 16'h0000 :
-                 (dmem_addr == 16'hFE00) ? {kbsr, {15{1'b0}}} :
-                 (dmem_addr == 16'hFE02) ? {8'h00, kbdr} :
-                 (dmem_addr == 16'hFE08) ? {tsr, {15{1'b0}}} :
-                 (dmem_addr < 16'hFE00) ? dmem_mout : 16'h0000;
+   //wire [15:0]   dmem_out = dmem_we ? 16'h0000 :
+                 //(dmem_addr == 16'hFE00) ? {kbsr, {15{1'b0}}} :
+                 //(dmem_addr == 16'hFE02) ? {8'h00, kbdr} :
+                 //(dmem_addr == 16'hFE08) ? {tsr, {15{1'b0}}} :
+                 //(dmem_addr < 16'hFE00) ? dmem_mout : 16'h0000;
 
 
    // PROCESSOR
 
-   lc4_processor proc_inst(.clk(proc_clk),
+   lc4_processor
+      #(.WORD_SIZE(WORD_SIZE))
+      proc_inst(.clk(proc_clk),
                            .rst(GLOBAL_RST),
                            .gwe(GLOBAL_WE),
                            .o_cur_pc(imem1_addr),
                            .i_cur_insn(imem1_out),
                            .o_dmem_addr(dmem_addr),
-                           .i_cur_dmem_data(dmem_out),
+                           .i_cur_dmem_data(dmem_mout),
                            .o_dmem_we(dmem_we),
                            .o_dmem_towrite(dmem_in),
                            .switch_data(SWITCH_IN),
@@ -187,7 +193,9 @@ module lc4_system(/*Clock input from FPGA pin*/
    // stage of a pipeline; memory-mapped I/O is implemented by executing loads
    // and stores to I/O memory.
 
-   lc4_memory memory (.idclk(proc_clk),
+   lc4_memory
+      #(.WORD_SIZE(WORD_SIZE))
+      memory (.idclk(proc_clk),
                       .i1re(i1re),
                       .i2re(i2re),
                       .dre(dre),

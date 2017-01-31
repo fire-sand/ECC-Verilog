@@ -17,6 +17,7 @@ module lc4_system(/*Clock input from FPGA pin*/
   dmem_mout_out,
 );
 
+  parameter WORD_SIZE = 64;
   input         CLK;     // System clock Default of 12 MHz
   input RS232_Rx;
   input SWITCH1, SWITCH2, SWITCH3, SWITCH4, SWITCH5, SWITCH6, SWITCH7, SWITCH8;
@@ -95,9 +96,9 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire [15:0]   imem1_out, imem2_out;
   // DATA MEMORY
   wire [15:0]   dmem_addr;
-  wire [15:0]   dmem_in;
+  wire [WORD_SIZE-1:0]   dmem_in;
   wire          dmem_we;
-  wire [15:0]   dmem_mout;
+  wire [WORD_SIZE-1:0]   dmem_mout;
 
   wire [13:0]   vga_addr;
   wire [15:0]   vga_data;
@@ -117,7 +118,8 @@ module lc4_system(/*Clock input from FPGA pin*/
 
   // PROCESSOR
 
-  lc4_processor proc_inst(.clk(proc_clk),
+  lc4_processor #(.WORD_SIZE(WORD_SIZE))
+      proc_inst(.clk(proc_clk),
                           .rst(GLOBAL_RST),
                           .gwe(GLOBAL_WE),
                           .o_cur_pc(imem1_addr),
@@ -147,7 +149,9 @@ module lc4_system(/*Clock input from FPGA pin*/
   // stage of a pipeline; memory-mapped I/O is implemented by executing loads
   // and stores to I/O memory.
 
-  lc4_memory memory (.idclk(proc_clk),
+  lc4_memory
+    #(.WORD_SIZE(WORD_SIZE))
+    memory (.idclk(proc_clk),
                     .i1re(i1re),
                     .i2re(i2re),
                     .dre(dre),

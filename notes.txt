@@ -15,7 +15,17 @@ LC counts
 LC and BRAM Counts:
   -----
     16 Bits with imem and dmem 16 bits and 1024 addresses
-        LCs          1115 / 7680
+        LCs          1085 / 7680
         BRAMs        8 / 32
+    16 Bits with imem and dmem 32 bits and 1024 addresses
+        LCs          1418 / 7680
+        BRAMs        8 / 32
+    16 Bits with imem and dmem 64 bits and 1024 addresses
+        LCs          1418 / 7680
+        BRAMs        8 / 32
+
+    NOTE: something looks horribly wrong
+
+
 
 

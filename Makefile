@@ -4,7 +4,7 @@ CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o o
 
 all_test: setup
 	iverilog -o outputs/proc_test.out \
-	  src/test_lc4_processor.tf \
+	  src/test_lc4_processor_tb.v \
 	  src/single.v src/register.v src/alu.v \
 	  src/regfile.v src/decoder.v \
 		src/system.v \

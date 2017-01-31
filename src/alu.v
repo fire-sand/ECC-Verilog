@@ -107,13 +107,14 @@ endmodule
 
 module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc, i_r1data, i_r2data;
+   input [15:0] i_insn, i_pc;
+   input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [15:0] o_result;
-   wire [15:0] sll, sra, srl;
+   wire [WORD_SIZE-1:0] sll, sra, srl;
 
-   leftShift shift0 (i_r1data, {12'b0, i_insn[3:0]}, sll);
-   rightShiftLogical shift1 (i_r1data, {12'b0, i_insn[3:0]}, srl);
-   rightShiftAri shift2 (i_r1data, {12'b0, i_insn[3:0]}, sra);
+   leftShift #(.WORD_SIZE(WORD_SIZE)) shift0 (i_r1data, {12'b0, i_insn[3:0]}, sll);
+   rightShiftLogical #(.WORD_SIZE(WORD_SIZE)) shift1 (i_r1data, {12'b0, i_insn[3:0]}, srl);
+   rightShiftAri #(.WORD_SIZE(WORD_SIZE)) shift2 (i_r1data, {12'b0, i_insn[3:0]}, sra);
    assign o_result = i_insn[5:4] == 2'b0 ? sll :
                      (i_insn[5:4] == 2'b1 ? sra :
                      (i_insn[5:4] == 2'b10 ? srl : 16'b0));
