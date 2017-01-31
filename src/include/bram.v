@@ -26,8 +26,8 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    output [15:0] vout;
    input         vclk;
 
-   reg [15:0]    IDRAM [1023:0]; //65535
-   //reg [15:0]    IDRAM [65535:0]; //65535
+   reg [15:0]    memory_i [0:511]; //65535
+   //reg [15:0]    memory [65535:0]; //65535
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;
 
@@ -54,7 +54,7 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
            $stop;
         end
       $fclose(f);
-      $readmemh(`MEMORY_IMAGE_FILE, IDRAM, 0, 65535);
+      $readmemh(`MEMORY_IMAGE_FILE, memory_i, 0, 65535);
    end
    `endif
 
@@ -66,13 +66,13 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
      begin
         //#1;
         if (data_we)
-          IDRAM[daddr] <= din;
+          memory_i[daddr] <= din;
       if (data_we & daddr[15] & daddr[14])  // Only write vram if address starts with "11"
         VRAM[daddr[13:0]] <= din;
       if (i1re || i2re)
-        mem_out_i <= IDRAM[iaddr];
+        mem_out_i <= memory_i[iaddr];
       if (dre)
-        mem_out_d <= IDRAM[daddr];
+        mem_out_d <= memory_i[daddr];
      end
 
    always @(posedge vclk)
