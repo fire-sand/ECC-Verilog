@@ -26,11 +26,13 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    output [15:0] vout;
    input         vclk;
 
-   reg [15:0]    IDRAM [65535:0];
+   reg [15:0]    IDRAM [1023:0]; //65535
+   //reg [15:0]    IDRAM [65535:0]; //65535
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;
 
-   reg [15:0]    VRAM [16383:0];
+   reg [15:0]    VRAM [511:0]; //16383
+   //reg [15:0]    VRAM [16383:0]; //16383
    reg [15:0]    read_vaddr;
 
    integer       f;
@@ -40,6 +42,7 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    wire          data_we = dwe && (dre || gwe);
    reg [15:0]    mem_out_i, mem_out_i2, mem_out_d;
 
+   `ifdef __ICARUS__
    initial
      begin
         f = 0; // Added to avoid a synthesis warning
@@ -52,7 +55,8 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
         end
       $fclose(f);
       $readmemh(`MEMORY_IMAGE_FILE, IDRAM, 0, 65535);
-     end
+   end
+   `endif
 
 
    assign iaddr = (i1re) ? i1addr : i2addr;

@@ -1,1 +1,25 @@
 Will need to take into account the one cyle delay of reading from bram. Meaning when you select the place you want to read out of, it will take one extra cycle. This may cause issues when reading from memory and loading it into a register.
+
+
+LC counts
+  16 bit word size, not using BRAM
+  -------
+  Satya implementation
+
+  with everything: LCs          2530 / 7680
+  without divider: LCs          2496 / 7680
+  without mult: LCs          2145 / 7680
+  without sub: LCs          2112 / 7680
+
+  Aasif implementation
+
+  with everything:
+  without divider:
+  without mult: 1233
+  without sub:
+
+
+  32 bit word size
+  -------
+
+

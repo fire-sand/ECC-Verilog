@@ -1,2 +1,4 @@
 outputs/*
 *.sw*
+*.output
+src/include/set_testcase.v

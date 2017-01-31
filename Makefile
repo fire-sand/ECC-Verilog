@@ -27,7 +27,8 @@ all: setup
 		#src/include/clkdiv.v \
 		#src/include/clkgen.v
 	sleep 1
-	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k -p src/cpu.pcf
+	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k -p src/cpu.pcf \
+		2>&1 | grep -e 'LCs' -e 'BRAM' -e 'LUT'
 
 alu: setup
 	$(CC) $(CFLAGS) src/lc4_alu.v

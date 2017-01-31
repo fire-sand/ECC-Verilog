@@ -55,7 +55,7 @@ module arith(i_insn, i_pc, i_r1data, i_r2data, o_result);
                      (i_insn[15:12] == 4'b0 ? {{7{i_insn[8]}}, i_insn[8:0]} + i_pc + 16'b1 :  //BR
                      (i_insn[15:11] == 5'b11001 ? {{5{i_insn[10]}}, i_insn[10:0]} + i_pc + 16'b1 :  // JMP
                      (i_insn[5:3] == 3'b0 ? i_r1data + i_r2data :    //add
-                     (i_insn[5:3] == 3'b1 ? i_r1data * i_r2data :          //mul
+                     (i_insn[5:3] == 3'b1 ? 0 :// i_r1data * i_r2data :          //mul
                      (i_insn[5:3] == 3'b010 ? i_r1data - i_r2data :  //sub
                      (i_insn[5] == 1'b1 ? i_r1data + {{11{i_insn[4]}}, i_insn[4:0]} : 16'b0))))))); //add
 

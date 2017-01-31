@@ -7,7 +7,7 @@
  * If Vivado can't find the files, replace this with an absolute path.
  * Windows users probably need to use "/" instead of "\" as the directory separator.
  */
-`define CODE_PATH "/home/aasif/Documents/School/2016c/SrDesign/RSA-CPU/src/test_data/"
+`define CODE_PATH "/home/aasif/Documents/School/2017a/SrDesign/RSA-CPU/src/test_data/"
 
 /* Uncomment one of the lines below to specify the test case
  * You will need to restart the behavioral simulation
