@@ -11,16 +11,11 @@ LC counts
   without mult: LCs          2145 / 7680
   without sub: LCs          2112 / 7680
 
-  Aasif implementation
-  mem_size
 
-  with everything:
-  without divider:
-  without mult: 1233
-  without sub:
-
-
-  32 bit word size
-  -------
+LC and BRAM Counts:
+  -----
+    16 Bits with imem and dmem 16 bits and 1024 addresses
+        LCs          1115 / 7680
+        BRAMs        8 / 32
 
 

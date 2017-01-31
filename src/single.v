@@ -57,8 +57,8 @@ module lc4_processor(clk, rst, gwe,
    wire [15:0]   pc;      // Current program counter (read out from pc_reg)
    wire [15:0]   next_pc; // Next program counter (you compute this and feed it into next_pc)
 
-   // Program counter register, starts at 8200h at bootup
-   Nbit_reg #(16, 16'h8200) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
+   // Program counter register, starts at 0h at bootup
+   Nbit_reg #(16, 16'h0) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
 
 
    /* END DO NOT MODIFY THIS CODE */
@@ -107,12 +107,14 @@ module lc4_processor(clk, rst, gwe,
    //takes in is_load and choses between control_mux_out or memory_out(i_cur_dmem_data)
    //only need to assign wire wdata write enable and select are taken care of by decoder
    //assign wd to ^
-   reg_input_mux reginputmux (is_load, control_mux_out, i_cur_dmem_data, reg_input_mux_out);
+   reg_input_mux #(.WORD_SIZE(WORD_SIZE))
+      reginputmux (is_load, control_mux_out, i_cur_dmem_data, reg_input_mux_out);
    assign wdata = reg_input_mux_out;
 
    //NZP Calculator module based on reg_input_mux_out
    wire[2:0] nzp_calc_out;
-   nzp_calculator nzpcalculator (reg_input_mux_out, nzp_calc_out);
+   nzp_calculator #(.WORD_SIZE(WORD_SIZE))
+     nzpcalculator (reg_input_mux_out, nzp_calc_out);
 
    wire[2:0] nzp_reg_out;
    Nbit_reg #(3) nzp_reg (nzp_calc_out, nzp_reg_out, clk, nzp_we, gwe, rst);
@@ -141,11 +143,11 @@ module lc4_processor(clk, rst, gwe,
    //Memory is an ouptut of this file
    //ADDR input port is output of mumory_input_mux
    // in input port is r2data
-   wire [15:0] memory_input;
+   wire [WORD_SIZE-1:0] memory_input;
    assign memory_input = r2data;
 
    //dmem data for testing
-   wire[15:0] dmem_data;
+   wire[WORD_SIZE-1:0] dmem_data;
    assign dmem_data = is_store ? memory_input : (is_load ? i_cur_dmem_data : 16'b0);
 
    //assign outputs
@@ -194,26 +196,28 @@ endmodule
 
 module control_mux (is_control, alu_out, pc_plus_one, control_out);
     input is_control;
-    input [15:0] alu_out, pc_plus_one;
+    input [16:0] alu_out, pc_plus_one; // NOTE this will clip the output of ALU
     output [15:0] control_out;
 
     assign control_out = (is_control == 1'b0) ? alu_out : pc_plus_one;
 endmodule
 
 module reg_input_mux (is_load, control_mux_out, memory_out, reg_input_mux_out);
+    parameter WORD_SIZE = 16;
     input is_load;
-    input[15:0] control_mux_out, memory_out;
-    output[15:0] reg_input_mux_out;
+    input[WORD_SIZE-1:0] control_mux_out, memory_out;
+    output[WORD_SIZE-1:0] reg_input_mux_out;
 
     assign reg_input_mux_out = (is_load == 1'b0) ? control_mux_out : memory_out;
 endmodule
 
 module nzp_calculator (nzp_in, nzp_calculator_out);
-    input [15:0] nzp_in;
+    parameter WORD_SIZE = 16;
+    input [WORD_SIZE-1:0] nzp_in;
     output [2:0] nzp_calculator_out;
 
-    assign nzp_calculator_out = (nzp_in[15] == 1'b1) ? 3'b100 :
-                                (nzp_in == 16'b0) ? 3'b010 :
+    assign nzp_calculator_out = (nzp_in[WORD_SIZE-1] == 1'b1) ? 3'b100 :
+                                (|nzp_in == 1'b0) ? 3'b010 :
                                 3'b001;
 endmodule
 
@@ -234,7 +238,7 @@ endmodule
 
 module branch_mux (branch_out, alu_mux_out, pc_plus_one, branch_mux_out);
     input branch_out;
-    input [15:0] alu_mux_out, pc_plus_one;
+    input [15:0] alu_mux_out, pc_plus_one; // NOTE this will take the bottom bits of ALU out
     output [15:0] branch_mux_out;
 
     assign branch_mux_out = (branch_out == 1'b0) ? pc_plus_one : alu_mux_out;
