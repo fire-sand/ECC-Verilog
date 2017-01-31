@@ -7,6 +7,8 @@
 
 // Memory module
 module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, daddr, din, dout, dwe, vclk, vaddr, vout);
+   parameter WORD_SIZE = 16;
+
    input         idclk;
    input         i1re;
    input         i2re;
@@ -26,23 +28,21 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    output [15:0] vout;
    input         vclk;
 
-   reg [15:0]    memory_i [0:511]; //65535
-   //reg [15:0]    memory [65535:0]; //65535
+   reg [15:0]    memory_i [0:1023]; // Instruction Memory
+   reg [WORD_SIZE-1:0] memory_d [0:1023]; // Data memory
+
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;
 
-   reg [15:0]    VRAM [511:0]; //16383
-   //reg [15:0]    VRAM [16383:0]; //16383
-   reg [15:0]    read_vaddr;
-
-   integer       f;
    wire [15:0]   iaddr, iout;
 
    // Writing on gwe doesn't work on board for some reason, but dre works
    wire          data_we = dwe && (dre || gwe);
-   reg [15:0]    mem_out_i, mem_out_i2, mem_out_d;
+   reg [15:0]    mem_out_i, mem_out_i2;
+   reg [WORD_SIZE-1:0] mem_out_d;
 
    `ifdef __ICARUS__
+   integer       f;
    initial
      begin
         f = 0; // Added to avoid a synthesis warning
@@ -65,19 +65,12 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    always @(posedge idclk)
      begin
         //#1;
-        if (data_we)
-          memory_i[daddr] <= din;
-      if (data_we & daddr[15] & daddr[14])  // Only write vram if address starts with "11"
-        VRAM[daddr[13:0]] <= din;
+      if (data_we)
+          memory_d[daddr] <= din;
       if (i1re || i2re)
         mem_out_i <= memory_i[iaddr];
       if (dre)
-        mem_out_d <= memory_i[daddr];
-     end
-
-   always @(posedge vclk)
-     begin
-        read_vaddr <= vaddr;
+        mem_out_d <= memory_d[daddr];
      end
 
    // Values don't come out of mem for another cycle, so we gotta adjust
@@ -101,6 +94,5 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    assign i2out = (i2re_latched_one_cycle) ? mem_out_i : i2out_latched;
 
    assign dout = mem_out_d;
-   assign vout = VRAM[read_vaddr[13:0]];
 
 endmodule // bram

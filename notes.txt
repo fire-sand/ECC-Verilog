@@ -4,7 +4,7 @@ Will need to take into account the one cyle delay of reading from bram. Meaning 
 LC counts
   16 bit word size, not using BRAM
   -------
-  Satya implementation
+  Satya implementation using mem and vmem
 
   with everything: LCs          2530 / 7680
   without divider: LCs          2496 / 7680
@@ -12,6 +12,7 @@ LC counts
   without sub: LCs          2112 / 7680
 
   Aasif implementation
+  mem_size
 
   with everything:
   without divider:
