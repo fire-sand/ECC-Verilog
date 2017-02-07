@@ -8,9 +8,9 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, o_result);
    output [WORD_SIZE-1:0] o_result;
 
 
-   wire [WORD_SIZE-1:0] r_arith, r_logical, r_shift, r_const, r_cmp;
+   wire [WORD_SIZE-1:0] r_arith, r_logical, r_shift, r_const, r_cmp, shifted;
    wire [3:0] insn;
-   wire [WORD_SIZE-1:0] pcJSR, pcTRAP, shifted;
+   wire [15:0] pcJSR, pcTRAP;
 
    arith #(.WORD_SIZE(WORD_SIZE))
       ari0 (i_insn, i_pc, i_r1data, i_r2data, r_arith);
@@ -24,15 +24,15 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, o_result);
       cmp0 (i_insn, i_pc, i_r1data, i_r2data, r_cmp);
    leftShift #(.WORD_SIZE(WORD_SIZE))
       shift1 ({5'b0, i_insn[10:0]}, 16'd4, shifted);
-   assign pcJSR = (i_pc & 16'h8000) | shifted;
+   assign pcJSR = (i_pc & 16'h8000) | shifted[15:0];
    assign pcTRAP = 16'h8000 | {8'b0, i_insn[7:0]};
 
    assign insn = i_insn[15:12];
    assign o_result = insn == 4'b0 || insn == 4'b1 || (insn == 4'b1010 && i_insn[5:4] == 2'b11)
                      || i_insn[15:13] == 3'b011 || i_insn[15:11] == 5'b11001 ? r_arith :
                      (i_insn[15:11] == 5'b11000 || i_insn[15:11] == 5'b01000 || insn == 4'b1000 ? i_r1data :      //JMPR, JSRR, RTI
-                     (i_insn[15:11] == 5'b01001 ? pcJSR :                                      //JSR
-                     (insn == 4'b1111 ? pcTRAP :                                               //TRAP
+                     (i_insn[15:11] == 5'b01001 ? {48'b0, pcJSR} :                                      //JSR
+                     (insn == 4'b1111 ? {48'b0, pcTRAP} :                                               //TRAP
                      (insn == 4'b0010 ? r_cmp :
                      (insn == 4'b0101 ? r_logical :
                      (insn == 4'b1001 || insn == 4'b1101 ? r_const :

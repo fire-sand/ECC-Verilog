@@ -149,7 +149,7 @@ module lc4_processor(clk, rst, gwe,
 
    //dmem data for testing
    wire[WORD_SIZE-1:0] dmem_data;
-   assign dmem_data = is_store ? memory_input : (is_load ? i_cur_dmem_data : WORD_SIZE'b0);
+   assign dmem_data = is_store ? memory_input : (is_load ? i_cur_dmem_data : 64'b0);
 
    //assign outputs
       assign o_cur_pc = pc;           // Address to read from instruction memory

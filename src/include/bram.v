@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "src/include/set_testcase.v"
+`include "set_testcase.v"
 // `ifndef MEMORY_IMAGE_FILE
 // `define MEMORY_IMAGE_FILE "../../../test_data/test_all.hex"
 // `endif
