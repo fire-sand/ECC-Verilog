@@ -22,7 +22,7 @@ module lc4_processor(clk, rst, gwe,
                      );
 
    /* DO NOT MODIFY THIS CODE */
-   parameter WORD_SIZE = 16;
+   parameter WORD_SIZE = 128;
    input         clk;                // Main clock
    input         rst;                // Global reset
    input         gwe;                // Global we for single-step clock

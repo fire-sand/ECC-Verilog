@@ -27,5 +27,14 @@ LC and BRAM Counts:
     NOTE: something looks horribly wrong
 
 
-
-
+Single Cycle only
+  16:
+      LCs          1194 / 7680
+  32:
+      LCs          2016 / 7680
+  64:
+      LCs          3397 / 7680
+  128:
+      LCs          6322 / 7680
+  256:
+      LCs          11651 / 7680

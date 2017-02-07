@@ -30,6 +30,21 @@ all: setup
 	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k -p src/cpu.pcf \
 		2>&1 | grep -e 'LCs' -e 'BRAM' -e 'LUT'
 
+single: setup
+	$(CC) $(CFLAGS) src/single.v src/register.v src/alu.v \
+		src/regfile.v src/decoder.v \
+		src/include/bram.v src/include/memory.v \
+		src/include/delay_eight_cycles.v \
+		src/include/one_pulse.v \
+		src/include/clock_util.v
+		# src/cpu.pcf
+		#src/include/clkdiv.v \
+		#src/include/clkgen.v
+	sleep 1
+	arachne-pnr outputs/test.blif -o outputs/test.asc -d 8k \
+		2>&1 | grep -e 'LCs' -e 'BRAM' -e 'LUT'
+
+
 alu: setup
 	$(CC) $(CFLAGS) src/lc4_alu.v
 	sleep 1
