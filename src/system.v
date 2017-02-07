@@ -101,18 +101,18 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire [WORD_SIZE-1:0]   dmem_mout;
 
   wire [13:0]   vga_addr;
-  wire [15:0]   vga_data;
+  wire [WORD_SIZE-1:0]   vga_data;
 
   wire          kbdr = 1'b0;
   wire          kbsr = 1'b0;
   wire          tsr = 1'b0;
 
   // MEMORY/DEVICE MUX
-  wire [15:0]   dmem_out = dmem_we ? 16'h0000 :
-                (dmem_addr == 16'hFE00) ? {kbsr, {15{1'b0}}} :
-                (dmem_addr == 16'hFE02) ? {8'h00, kbdr} :
-                (dmem_addr == 16'hFE08) ? {tsr, {15{1'b0}}} :
-                (dmem_addr < 16'hFE00) ? dmem_mout : 16'h0000;
+  //wire [WORD_SIZE-1:0]   dmem_out = dmem_we ? 16'h0000 :
+                //(dmem_addr == 16'hFE00) ? {kbsr, {15{1'b0}}} :
+                //(dmem_addr == 16'hFE02) ? {8'h00, kbdr} :
+                //(dmem_addr == 16'hFE08) ? {tsr, {15{1'b0}}} :
+                //(dmem_addr < 16'hFE00) ? dmem_mout : 16'h0000;
 
 
 
@@ -125,7 +125,7 @@ module lc4_system(/*Clock input from FPGA pin*/
                           .o_cur_pc(imem1_addr),
                           .i_cur_insn(imem1_out),
                           .o_dmem_addr(dmem_addr),
-                          .i_cur_dmem_data(dmem_out),
+                          .i_cur_dmem_data(dmem_mout),
                           .o_dmem_we(dmem_we),
                           .o_dmem_towrite(dmem_in),
                           .switch_data(SWITCH_IN),
