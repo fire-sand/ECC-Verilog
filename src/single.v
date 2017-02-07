@@ -149,7 +149,7 @@ module lc4_processor(clk, rst, gwe,
 
    //dmem data for testing
    wire[WORD_SIZE-1:0] dmem_data;
-   assign dmem_data = is_store ? memory_input : (is_load ? i_cur_dmem_data : 16'b0);
+   assign dmem_data = is_store ? memory_input : (is_load ? i_cur_dmem_data : WORD_SIZE'b0);
 
    //assign outputs
       assign o_cur_pc = pc;           // Address to read from instruction memory
@@ -199,9 +199,9 @@ module control_mux (is_control, alu_out, pc_plus_one, control_out);
     parameter WORD_SIZE = 16;
     input is_control;
     input [WORD_SIZE-1:0] alu_out, pc_plus_one; // NOTE this will clip the output of ALU
-    output [15:0] control_out;
+    output [WORD_SIZE-1:0] control_out;
 
-    assign control_out = (is_control == 1'b0) ? alu_out : pc_plus_one;
+    assign control_out = (is_control == 1'b0) ? alu_out : ({{WORD_SIZE-16{1'b0}}, pc_plus_one});
 endmodule
 
 module reg_input_mux (is_load, control_mux_out, memory_out, reg_input_mux_out);
