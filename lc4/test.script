@@ -1,0 +1,10 @@
+reset
+as test_add test_add
+ld test_add
+dump -readmemh x0000 xFFFF test_add.hex
+trace on test_add.trace
+break set END_LABEL
+continue
+
+
+quit

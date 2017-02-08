@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "set_testcase.v"
+`include "src/include/set_testcase.v"
 // `ifndef MEMORY_IMAGE_FILE
 // `define MEMORY_IMAGE_FILE "../../../test_data/test_all.hex"
 // `endif
@@ -28,8 +28,8 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    output [15:0] vout;
    input         vclk;
 
-   reg [15:0]    memory_i [0:1023]; // Instruction Memory
-   reg [WORD_SIZE-1:0] memory_d [0:1023]; // Data memory
+   reg [15:0]    memory_i [0:65535]; // Instruction Memory -- 1023
+   reg [WORD_SIZE-1:0] memory_d [0:65535]; // Data memory  -- 1023
 
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;

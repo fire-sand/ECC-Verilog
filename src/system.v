@@ -32,7 +32,7 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire [15:0]   seven_segment_data;
   output [7:0]    led_data;
 
-  wire GLOBAL_RST = 1;
+  wire GLOBAL_RST = 0;
   wire GLOBAL_WE;
   wire dcm_reset_1 = 1'b0;
   wire dcm_reset_2 = 1'b0;

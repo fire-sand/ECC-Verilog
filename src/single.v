@@ -22,7 +22,7 @@ module lc4_processor(clk, rst, gwe,
                      );
 
    /* DO NOT MODIFY THIS CODE */
-   parameter WORD_SIZE = 16;
+   parameter WORD_SIZE = 256;
    input         clk;                // Main clock
    input         rst;                // Global reset
    input         gwe;                // Global we for single-step clock
@@ -58,7 +58,7 @@ module lc4_processor(clk, rst, gwe,
    wire [15:0]   next_pc; // Next program counter (you compute this and feed it into next_pc)
 
    // Program counter register, starts at 0h at bootup
-   Nbit_reg #(16, 16'h0) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
+   Nbit_reg #(16, 16'h8200) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
 
 
    /* END DO NOT MODIFY THIS CODE */
