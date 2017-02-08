@@ -38,3 +38,22 @@ Single Cycle only
       LCs          6322 / 7680
   256:
       LCs          11651 / 7680
+
+System with 1024 imem and 32 dmem
+  16:
+    LCs          1179 / 7680
+    BRAMs        5 / 32
+  32:
+    LCs          1973 / 7680
+    BRAMs        5 / 32
+  64:
+    LCs          3227 / 7680
+    BRAMs        5 / 32
+  128:
+    LCs          5846 / 7680
+    BRAMs        5 / 32
+  256:
+    LCs          11015 / 7680
+    BRAMs        5 / 32
+
+
