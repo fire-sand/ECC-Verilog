@@ -31,6 +31,7 @@ module lc4_regfile(clk, gwe, rst, r1sel, r1data, r2sel, r2data, wsel, wdata, we)
    /***********************
     * TODO YOUR CODE HERE *
     ***********************/
+   wire r0_decoder, r1_decoder;
    assign r0_decoder = (wsel == 3'b0);
    assign r1_decoder = (wsel == 3'b1);
    Nbit_reg #(n) r0_m (wdata, r0, clk, r0_decoder & we, gwe, rst);

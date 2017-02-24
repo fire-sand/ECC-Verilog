@@ -7,7 +7,6 @@ all_test: setup
 		src/test_lc4_processor_tb.v \
 		src/lc4_processor.v src/Nbit_reg.v src/lc4_alu.v \
 		src/lc4_regfile.v src/lc4_decoder.v \
-		src/system.v \
 		src/include/set_testcase.v \
 		src/include/bram.v src/include/memory.v \
 		src/include/delay_eight_cycles.v \

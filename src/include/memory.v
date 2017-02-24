@@ -14,7 +14,8 @@ module lc4_memory(idclk,
                   i2addr,
                   i1out,
                   i2out,
-                  daddr,
+                  draddr,
+                  dwaddr,
                   din,
                   dout,
                   dwe,
@@ -34,7 +35,8 @@ module lc4_memory(idclk,
   input [15:0]  i2addr;
   output [15:0]   i1out;
   output [15:0]   i2out;
-  input [15:0]  daddr;
+  input [2:0]  draddr;
+  input [2:0]  dwaddr;
   input [WORD_SIZE-1:0]  din;
   output [WORD_SIZE-1:0]   dout;
   input       dwe;
@@ -56,7 +58,8 @@ module lc4_memory(idclk,
                 .i2addr(i2addr),
                 .i1out(i1out_not_delayed),
                 .i2out(i2out_not_delayed),
-                .daddr(daddr),
+                .draddr(draddr),
+                .dwaddr(dwaddr),
                 .din(din),
                 .dout(dout),
                 .dwe(dwe),

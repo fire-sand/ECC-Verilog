@@ -1,4 +1,5 @@
 `timescale 1ns / 1ps
+`default_nettype none
 
 `define EOF 32'hFFFF_FFFF
 `define NEWLINE 10
@@ -34,7 +35,8 @@ module test_lc4_processor_tb();
 
    // Outputs
    wire [15:0] cur_pc;
-   wire [15:0] dmem_addr;
+   wire [2:0] dmem_raddr;
+   wire [2:0] dmem_waddr;
    wire [WORD_SIZE-1:0] dmem_tworite;
    wire        dmem_we;
 
@@ -86,7 +88,8 @@ module test_lc4_processor_tb();
                       .i1addr(cur_pc),
           .i2addr(16'd0),      // Not used for scalar processor
                       .i1out(cur_insn),
-                      .daddr(dmem_addr),
+                      .draddr(dmem_raddr),
+                      .dwaddr(dmem_waddr),
           .din(dmem_tworite),
                       .dout(cur_dmem_data),
                       .dwe(dmem_we),
@@ -101,7 +104,7 @@ module test_lc4_processor_tb();
                             .gwe(gwe),
                             .o_cur_pc(cur_pc),
                             .i_cur_insn(cur_insn),
-                            .o_dmem_addr(dmem_addr),
+                            .o_dmem_raddr(dmem_raddr),
                             .o_dmem_towrite(dmem_tworite),
                             .i_cur_dmem_data(cur_dmem_data),
                             .o_dmem_we(dmem_we),
