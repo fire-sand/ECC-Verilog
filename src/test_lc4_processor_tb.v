@@ -17,7 +17,7 @@
 // `endif
 
 module test_lc4_processor_tb();
-  
+
    parameter WORD_SIZE = 64;
 
    integer     input_file, output_file, errors, linenum;
@@ -222,15 +222,9 @@ module test_lc4_processor_tb();
                // insn
                if (verify_insn !== test_insn) begin
                   $write("Error at line %d: insn should be %h (", linenum, verify_insn);
-<<<<<<< HEAD
-                  //pinstr(verify_insn);
-                  $write(") but was %h (", test_insn);
-                  //pinstr(test_insn);
-=======
                   // pinstr(verify_insn);
                   $write(") but was %h (", test_insn);
                   // pinstr(test_insn);
->>>>>>> cccf9da9855e47efb266c6a9deac882150e08e82
                   $display(")");
                   errors = errors + 1;
                   $finish;

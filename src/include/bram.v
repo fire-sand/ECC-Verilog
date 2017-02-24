@@ -6,7 +6,7 @@
 // `endif
 
 // Memory module
-module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, daddr, din, dout, dwe, vclk, vaddr, vout);
+module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, draddr, dwaddr, din, dout, dwe, vclk, vaddr, vout);
    parameter WORD_SIZE = 16;
 
    input         idclk;
@@ -19,17 +19,18 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    input [15:0]  i2addr;
    output [15:0] i1out;
    output [15:0] i2out;
-   input [15:0]  daddr;
-   input [15:0]  din;
-   output [15:0] dout;
+   input [2:0]  draddr;
+   input [2:0]  dwaddr;
+   input [WORD_SIZE-1:0]  din;
+   output [WORD_SIZE-1:0] dout;
    input         dwe;
 
    input [15:0]  vaddr;
    output [15:0] vout;
    input         vclk;
 
-   reg [15:0]    memory_i [8200:9223]; // Instruction Memory
-   reg [WORD_SIZE-1:0] memory_d [0:31]; // Data memory
+   reg [15:0]    memory_i [1023:0]; // Instruction Memory
+   reg [WORD_SIZE-1:0] memory_d [7:0]; // Data memory
 
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;
@@ -66,11 +67,11 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
      begin
         //#1;
       if (data_we)
-          memory_d[daddr] <= din;
+          memory_d[dwaddr] <= din;
       if (i1re || i2re)
         mem_out_i <= memory_i[iaddr];
       if (dre)
-        mem_out_d <= memory_d[daddr];
+        mem_out_d <= memory_d[draddr];
      end
 
    // Values don't come out of mem for another cycle, so we gotta adjust

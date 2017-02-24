@@ -4,9 +4,9 @@ CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o o
 
 all_test: setup
 	iverilog -o outputs/proc_test.out \
-	  src/test_lc4_processor_tb.v \
-	  src/single.v src/register.v src/alu.v \
-	  src/regfile.v src/decoder.v \
+		src/test_lc4_processor_tb.v \
+		src/lc4_processor.v src/Nbit_reg.v src/lc4_alu.v \
+		src/lc4_regfile.v src/lc4_decoder.v \
 		src/system.v \
 		src/include/set_testcase.v \
 		src/include/bram.v src/include/memory.v \
