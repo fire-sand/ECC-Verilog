@@ -56,4 +56,10 @@ System with 1024 imem and 32 dmem
     LCs          11015 / 7680
     BRAMs        5 / 32
 
+Regfile should be 2-3 luts per bit
+Keep 1 register, and 1 memory, so alu takes in 1 operand form reg and 1 operand from memory
+Remove load/store instructions, treat just as reading out of register filea
 
+add logic to repeat instruction N times
+
+add shift register for multiply step

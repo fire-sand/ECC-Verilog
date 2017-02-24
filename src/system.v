@@ -17,7 +17,7 @@ module lc4_system(/*Clock input from FPGA pin*/
   dmem_mout_out,
 );
 
-  parameter WORD_SIZE = 64;
+  parameter WORD_SIZE = 256;
   input         CLK;     // System clock Default of 12 MHz
   input RS232_Rx;
   input SWITCH1, SWITCH2, SWITCH3, SWITCH4, SWITCH5, SWITCH6, SWITCH7, SWITCH8;
@@ -32,7 +32,7 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire [15:0]   seven_segment_data;
   output [7:0]    led_data;
 
-  wire GLOBAL_RST = 1;
+  wire GLOBAL_RST = 0;
   wire GLOBAL_WE;
   wire dcm_reset_1 = 1'b0;
   wire dcm_reset_2 = 1'b0;

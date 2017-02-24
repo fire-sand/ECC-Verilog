@@ -72,6 +72,7 @@ module logical(i_insn, i_pc, i_r1data, i_r2data, o_result);
                         (i_insn[5:3] == 3'b010 ? i_r1data | i_r2data :  //or
                         (i_insn[5:3] == 3'b011 ? i_r1data ^ i_r2data :          //xor
                         (i_insn[5] == 1'b1 ? i_r1data & {{11{i_insn[4]}}, i_insn[4:0]}: 16'b0)))); //AND
+  //assign o_result = {WORD_SIZE{1'b0}};
 
 endmodule
 
@@ -81,9 +82,8 @@ module constant(i_insn, i_pc, i_r1data, i_r2data, o_result);
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] r;
-   // call left shift module here
    assign r = i_r1data & 16'hFF; // TODO NEED TO PAD WITH 0's to fill out word_size
-   assign o_result = i_insn[15:12] == 4'b1001 ? {{7{i_insn[8]}}, i_insn[8:0]} : // CONST
+   assign o_result = i_insn[15:12] == 4'b1001 ? {{WORD_SIZE - 16 + 7{i_insn[8]}}, i_insn[8:0]} : // CONST
                     (i_insn[15:12] == 4'b1101 ? {r[15:8] | i_insn[7:0], r[7:0]} : 16'b0 ); // HIGH CONST
 endmodule
 

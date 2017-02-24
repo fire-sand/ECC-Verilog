@@ -28,8 +28,8 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, dadd
    output [15:0] vout;
    input         vclk;
 
-   reg [15:0]    memory_i [0:1023]; // Instruction Memory
-   reg [WORD_SIZE-1:0] memory_d [0:1023]; // Data memory
+   reg [15:0]    memory_i [8200:9223]; // Instruction Memory
+   reg [WORD_SIZE-1:0] memory_d [0:31]; // Data memory
 
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;

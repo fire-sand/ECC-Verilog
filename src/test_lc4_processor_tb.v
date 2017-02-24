@@ -6,7 +6,7 @@
 
 `include "src/include/set_testcase.v"
 
-`include "src/include/lc4_prettyprint_errors.v"
+// `include "src/include/lc4_prettyprint_errors.v"
 
 // `ifndef INPUT_FILE
 // `define INPUT_FILE "/home/bjbrown/cis371/hw/lab2/ref_impl/test_data/test_all.trace"
@@ -132,20 +132,20 @@ module test_lc4_processor_tb();
 
 
       // open the test inputs
-      input_file = $fopen(`INPUT_FILE, "r");
-      if (input_file == `NULL) begin
-         $display("Error opening file: %s", `INPUT_FILE);
-         $finish;
-      end
+      //input_file = $fopen(`INPUT_FILE, "r");
+      //if (input_file == `NULL) begin
+         //$display("Error opening file: %s", `INPUT_FILE);
+         //$finish;
+      //end
 
-      // open the output file
-`ifdef OUTPUT_FILE
-      output_file = $fopen(`OUTPUT_FILE, "w");
-      if (output_file == `NULL) begin
-         $display("Error opening file: %s", `OUTPUT_FILE);
-         $finish;
-      end
-`endif
+      //// open the output file
+//`ifdef OUTPUT_FILE
+      //output_file = $fopen(`OUTPUT_FILE, "w");
+      //if (output_file == `NULL) begin
+         //$display("Error opening file: %s", `OUTPUT_FILE);
+         //$finish;
+      //end
+//`endif
 
 
       #80
@@ -220,9 +220,9 @@ module test_lc4_processor_tb();
                // insn
                if (verify_insn !== test_insn) begin
                   $write("Error at line %d: insn should be %h (", linenum, verify_insn);
-                  pinstr(verify_insn);
+                  //pinstr(verify_insn);
                   $write(") but was %h (", test_insn);
-                  pinstr(test_insn);
+                  //pinstr(test_insn);
                   $display(")");
                   errors = errors + 1;
                   $finish;
