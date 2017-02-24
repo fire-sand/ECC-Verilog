@@ -17,6 +17,8 @@
 // `endif
 
 module test_lc4_processor_tb();
+  
+   parameter WORD_SIZE = 64;
 
    integer     input_file, output_file, errors, linenum;
    integer     num_cycles;
@@ -28,12 +30,12 @@ module test_lc4_processor_tb();
    reg clk;
    reg rst;
    wire [15:0] cur_insn;
-   wire [15:0] cur_dmem_data;
+   wire [WORD_SIZE-1:0] cur_dmem_data;
 
    // Outputs
    wire [15:0] cur_pc;
    wire [15:0] dmem_addr;
-   wire [15:0] dmem_tworite;
+   wire [WORD_SIZE-1:0] dmem_tworite;
    wire        dmem_we;
 
    wire [1:0]  test_stall;       // Testbench: is this is stall cycle? (don't compare the test values)
@@ -41,26 +43,26 @@ module test_lc4_processor_tb();
    wire [15:0] test_insn;        // Testbench: instruction bits
    wire        test_regfile_we;  // Testbench: register file write enable
    wire [2:0]  test_regfile_reg; // Testbench: which register to write in the register file
-   wire [15:0] test_regfile_in;  // Testbench: value to write into the register file
+   wire [WORD_SIZE-1:0] test_regfile_in;  // Testbench: value to write into the register file
    wire        test_nzp_we;      // Testbench: NZP condition codes write enable
    wire [2:0]  test_nzp_new_bits;      // Testbench: value to write to NZP bits
    wire        test_dmem_we;     // Testbench: data memory write enable
    wire [15:0] test_dmem_addr;   // Testbench: address to write memory
-   wire [15:0] test_dmem_data;  // Testbench: value to write memory
+   wire [WORD_SIZE-1:0] test_dmem_data;  // Testbench: value to write memory
 
    reg  [15:0] verify_pc;
    reg  [15:0] verify_insn;
    reg         verify_regfile_we;
    reg  [2:0]  verify_regfile_reg;
-   reg  [15:0] verify_regfile_in;
+   reg  [WORD_SIZE-1:0] verify_regfile_in;
    reg         verify_nzp_we;
    reg  [2:0]  verify_nzp_new_bits;
    reg         verify_dmem_we;
    reg  [15:0] verify_dmem_addr;
-   reg  [15:0] verify_dmem_data;
+   reg  [WORD_SIZE-1:0] verify_dmem_data;
    reg [15:0]  file_status;
 
-   wire [15:0] vout_dummy;  // video out
+   wire [WORD_SIZE-1:0] vout_dummy;  // video out
 
 
    always #5 clk <= ~clk;
@@ -75,7 +77,7 @@ module test_lc4_processor_tb();
 
 
    // Data and video memory block
-   lc4_memory memory (.idclk(clk),
+   lc4_memory #(.WORD_SIZE(WORD_SIZE)) memory (.idclk(clk),
           .i1re(i1re),
           .i2re(i2re),
           .dre(dre),
@@ -89,12 +91,12 @@ module test_lc4_processor_tb();
                       .dout(cur_dmem_data),
                       .dwe(dmem_we),
                       .vclk(1'b0),
-                      .vaddr(16'h0000),
+                      .vaddr(64'h0000),
                       .vout(vout_dummy));
 
 
    // Instantiate the Unit Under Test (UUT)
-   lc4_processor proc_inst (.clk(clk),
+   lc4_processor #(.WORD_SIZE(WORD_SIZE)) proc_inst (.clk(clk),
                             .rst(rst),
                             .gwe(gwe),
                             .o_cur_pc(cur_pc),
@@ -220,9 +222,15 @@ module test_lc4_processor_tb();
                // insn
                if (verify_insn !== test_insn) begin
                   $write("Error at line %d: insn should be %h (", linenum, verify_insn);
+<<<<<<< HEAD
                   //pinstr(verify_insn);
                   $write(") but was %h (", test_insn);
                   //pinstr(test_insn);
+=======
+                  // pinstr(verify_insn);
+                  $write(") but was %h (", test_insn);
+                  // pinstr(test_insn);
+>>>>>>> cccf9da9855e47efb266c6a9deac882150e08e82
                   $display(")");
                   errors = errors + 1;
                   $finish;
