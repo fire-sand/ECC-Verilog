@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" ng-app="courseApp" ng-controller="courseController">
+  <head>
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/styles.css" type="text/css" rel="stylesheet" media="screen">
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
+    <script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.js"></script>
+    <script src="js/functions.js"></script>
+
+    <style>
+      .lc4table tbody {
+        font-family: "Courier New", Courier, Monospace;
+        text-align: left;
+      }
+
+      .lc4table td:nth-child(3) {
+        white-space: nowrap;
+      }
+
+      .legend th {
+        text-align: center;
+      }
+
+      .legend table {
+        table-layout: fixed;
+      }
+
+      .legend table td, th {
+        font-family: "Courier New", Courier, Monospace;
+        text-align: left;
+        text-wrap: normal;
+        word-wrap: break-word
+      }
+
+      .lc4table th {
+        text-align: center;
+      }
+
+      .lc4table tbody td:nth-child(2) {
+        width: 60%;
+      }
+
+      .lc4table tbody td:nth-child(1) {
+        width: 20%;
+      }
+
+      Rd {
+          color: #fa9d00;
+      }
+
+      Rs {
+          color: #c443bc;
+      }
+
+      Rt {
+          color: #cb4154;
+      }
+
+      imm {
+          color: #76cf79;
+      }
+
+      uimm {
+          color: #17a2ff;
+      }
+
+      x {
+          color: gray;
+      }
+
+      .desc {
+          font-family: Arial, Helvetica, sans-serif;
+      }
+
+      tt {
+          font-family: "Courier New", Courier, Monospace;
+      }
+    </style>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>LC4 Instruction Set v. 2015-01</title>
+	</head>
+
+
+	<body cis-header>
+  <div class="container-fluid">
+    <div class="page-header">
+      <div class="text-center">
+		    <h1>LC4 Instruction Set v. 2015-01</h1>
+        <a href="common_files/lc4_isa_sheet.pdf">Printable ISA PDF</a>
+      </div>
+    </div>
+
+		<div class="row">
+
+      <div class="col-md-8">
+
+      <table class="lc4table table table-bordered">
+        <thead>
+          <tr>
+            <th>Mnemonic</th>
+            <th>Semantics</th>
+            <th>Encoding</th>
+          </tr>
+        </thead>
+
+        <tbody id="branches">
+          <tr>
+            <td>NOP</td>
+            <td>PC = PC + 1</td>
+            <td>0000 000<x>x xxxx xxxx</x></td>
+          </tr>
+          <tr>
+            <td>BRp   &lt;Label&gt;</td>
+            <td>(    P) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 001<imm>i iiii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>BRz   &lt;Label&gt;</td>
+            <td>(  Z  ) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 010<imm>i iiii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>BRzp  &lt;Label&gt;</td>
+            <td>(  Z|P) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 011<imm>i iiii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>BRn   &lt;Label&gt;</td>
+            <td>(N    ) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 100<imm>i iiii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>BRnp  &lt;Label&gt;</td>
+            <td>(N | P) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 101<imm>i iiii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>BRnz  &lt;Label&gt;</td>
+            <td>(N|Z  ) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 110<imm>i iiii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>BRnzp &lt;Label&gt;</td>
+            <td>(N|Z|P) ? PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
+            <td>0000 111<imm>i iiii iiii</imm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="arithmetic">
+          <tr>
+            <td>ADD <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> + <Rt>Rt</Rt></td>
+            <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>00 0<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>SUB <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> - <Rt>Rt</Rt></td>
+            <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>01 0<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>ADD <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> + sext(<imm>IMM5</imm>)</td>
+            <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>1<imm>i iiii</imm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="cmp">
+          <tr>
+            <td>CMP   <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td>NZP = sign(<Rs>Rs</Rs> - <Rt>Rt</Rt>)</td>
+            <td>0010 <Rs>sss</Rs>0 0<x>xxx x</x><Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>CMPU  <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td>NZP = sign(<uimm>u</uimm><Rs>Rs</Rs> - <uimm>u</uimm><Rt>Rt</Rt>)</td>
+            <td>0010 <Rs>sss</Rs>0 1<x>xxx x</x><Rt>ttt</Rt></td>
+          </tr> <!-- is the result interpreted as signed or unsigned? -->
+          <tr>
+            <td>CMPI  <Rs>Rs</Rs> <imm>IMM7</imm></td>
+            <td>NZP = sign(<Rs>Rs</Rs> - sext(<imm>IMM7</imm>))</td>
+            <td>0010 <Rs>sss</Rs>1 0<imm>iii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>CMPIU <Rs>Rs</Rs> <uimm>UIMM7</uimm></td>
+            <td>NZP = sign(<uimm>u</uimm><Rs>Rs</Rs> - <uimm>UIMM7</uimm>)</td>
+            <td>0010 <Rs>sss</Rs>1 1<uimm>uuu uuuu</uimm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="reg-jumps">
+          <tr>
+            <td>JSRR <Rs>Rs</Rs></td>
+            <td>R7 = PC + 1; PC = <Rs>Rs</Rs></td>
+            <td>0100 0<x>xx</x><Rs>s ss</Rs><x>xx xxxx</x></td>
+          </tr>
+          <tr>
+            <td>JSR &lt;Label&gt;</td>
+            <td>R7 = PC + 1; PC = (PC & 0x8000) | (<imm>IMM11</imm> &lt;&lt; 4 offset to &lt;Label&gt;)</td>
+            <td>0100 1<imm>iii iiii iiii</imm></td>
+          </tr>
+        </tbody>
+        <tbody id="rti">
+          <tr>
+            <td>RTI</td>
+            <td>PC = R7; PSR [15] = 0</td>
+            <td >1000 <x>xxxx xxxx xxxx</x></td>
+          </tr>
+        </tbody>
+
+        <tbody id="shifts">
+          <tr>
+            <td>SLL <Rd>Rd</Rd> <Rs>Rs</Rs> <uimm>UIMM4</uimm></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> &lt;&lt; <uimm>UIMM4</uimm></td>
+            <td>1010 <Rd>ddd</Rd><Rs>s ss</Rs>00 <uimm>uuuu</uimm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="jumps">
+          <tr>
+            <td>JMP  &lt;Label&gt;</td>
+            <td>PC = PC + 1 + sext(<imm>IMM11</imm> offset to &lt;Label&gt;)</td>
+            <td>1100 1<imm>iii iiii iiii</imm></td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+
+      <table class="lc4table table table-bordered">
+        <thead>
+          <tr><th colspan=3>Pseudo-Instructions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>RET</td>
+            <td class="desc">Return to <tt>R7</tt></td>
+            <td>JMPR R7</td>
+          </tr>
+          <tr>
+            <td>LEA <Rd>Rd</Rd> &lt;Label&gt;</td>
+            <td class="desc">Store address of <tt>&lt;Label&gt; in <Rd>Rd</Rd></tt></td>
+            <td>CONST/HICONST</td>
+          </tr>
+          <tr>
+            <td>LC  <Rd>Rd</Rd> &lt;Label&gt;</td>
+            <td class="desc">Store value of <tt>&lt;Label&gt; in <Rd>Rd</Rd></tt></td>
+            <td>CONST/HICONST</td>
+          </tr>
+        </tbody>
+      </table>
+      <br/>
+
+      <table class="lc4table table table-bordered">
+        <thead>
+          <tr><th colspan=2>Assembler Directives</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>.CODE</td><td class="desc">Current memory section contains instruction code</td></tr>
+          <tr><td>.DATA</td><td class="desc">Current memory section contains data values</td></tr>
+          <tr><td>.ADDR <uimm>UIMM16</uimm></td><td class="desc">Set current memory address to <uimm>UIMM16</uimm></td></tr>
+          <tr><td>.FALIGN</td><td class="desc">Pad current memory address to next multiple of 16</td></tr>
+          <tr><td>.FILL <imm>IMM16</imm></td><td class="desc">Set current memory address's value to <imm>IMM16</imm></td></tr>
+          <tr><td>.STRINGZ "String"</td><td class="desc">Expands to a <tt>.FILL</tt> for each character in <tt>String</tt></td></tr>
+          <tr><td>.BLKW <uimm>UIMM16</uimm></td><td class="desc">Reserve <uimm>UIMM16</uimm> words of memory from the current address</td></tr>
+          <tr><td>&lt;Label&gt; .CONST <imm>IMM16</imm></td><td class="desc">Associate &lt;Label&gt; with <imm>IMM16</imm></td></tr>
+          <tr><td>&lt;Label&gt; .UCONST <uimm>IMM16</uimm></td><td class="desc">Associate &lt;Label&gt; with <uimm>UIMM16</uimm></td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="col-md-4 legend">
+        <table class="table table-bordered">
+          <thead>
+            <tr><th colspan=2>Legend</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>0101</td>        <td class="desc">opcode/sub-opcode</td></tr>
+            <tr><td><Rd>ddd</Rd></td><td class="desc">destination register</td></tr>
+            <tr><td><Rs>sss</Rs></td><td class="desc">source register 1</td></tr>
+            <tr><td><Rt>ttt</Rt></td><td class="desc">source register 2</td></tr>
+            <tr><td><imm>iii</imm></td><td class="desc">signed immediate value</td></tr>
+            <tr><td><uimm>uuu</uimm></td><td class="desc">unsigned immediate value</td></tr>
+            <tr><td><x>xxx</x></td><td class="desc">"don't care" value</td></tr>
+            <tr><td>sign(<Rs>Rs</Rs> - <Rt>Rt</Rt>)</td><td class="desc">+1, 0, or -1, depending on the sign of the subtraction.  The registers are treated as <imm>signed</imm> values.</td></tr>
+            <tr><td>sign(<uimm>u</uimm><Rs>Rs</Rs> - <uimm>u</uimm><Rt>Rt</Rt>)</td><td class="desc">+1, 0, or -1, depending on the sign of the subtraction.  The registers are treated as <uimm>unsigned</uimm> values. The result of the subtraction is a <i>signed</i> number, despite the inputs being <i>unsigned</i>.</td></tr>
+            <tr><td>NZP</td><td class="desc"><b>N</b>egative, <b>Z</b>ero, and <b>P</b>ositive bits from the processor's status register.  They are set based on the value of the compare operations, and by any instruction that writes to a register. In the case of registers updating the NZP bits, the value set in the NZP register corresponds to the sign of the value written to the register (+1, 0, -1).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+		</div>
+
+
+    </div>
+  </body>
+</html>
