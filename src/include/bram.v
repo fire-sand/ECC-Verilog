@@ -30,7 +30,7 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
    input         vclk;
 
    reg [15:0]    memory_i [1023:0]; // Instruction Memory
-   reg [WORD_SIZE-1:0] memory_d [7:0]; // Data memory
+   reg [WORD_SIZE-1:0] memory_d [31:0]; // Data memory
 
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;
@@ -55,7 +55,7 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
            $stop;
         end
       $fclose(f);
-      $readmemh(`MEMORY_IMAGE_FILE, memory_i, 0, 65535);
+      $readmemh(`MEMORY_IMAGE_FILE, memory_i, 0, 1023);
    end
    `endif
 

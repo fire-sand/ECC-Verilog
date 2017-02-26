@@ -18,6 +18,7 @@ module lc4_system(/*Clock input from FPGA pin*/
 );
 
   parameter WORD_SIZE = 256;
+   parameter REG_ADDR_BITS = 3;
   input         CLK;     // System clock Default of 12 MHz
   input RS232_Rx;
   input SWITCH1, SWITCH2, SWITCH3, SWITCH4, SWITCH5, SWITCH6, SWITCH7, SWITCH8;
@@ -95,7 +96,8 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire [15:0]   imem1_addr, imem2_addr;
   wire [15:0]   imem1_out, imem2_out;
   // DATA MEMORY
-  wire [15:0]   dmem_addr;
+  wire [REG_ADDR_BITS-1:0]   dmem_raddr;
+  wire [REG_ADDR_BITS-1:0]   dmem_waddr;
   wire [WORD_SIZE-1:0]   dmem_in;
   wire          dmem_we;
   wire [WORD_SIZE-1:0]   dmem_mout;
@@ -124,7 +126,8 @@ module lc4_system(/*Clock input from FPGA pin*/
                           .gwe(GLOBAL_WE),
                           .o_cur_pc(imem1_addr),
                           .i_cur_insn(imem1_out),
-                          .o_dmem_addr(dmem_addr),
+                          .o_dmem_raddr(dmem_raddr),
+                          .o_dmem_waddr(dmem_waddr),
                           .i_cur_dmem_data(dmem_mout),
                           .o_dmem_we(dmem_we),
                           .o_dmem_towrite(dmem_in),
@@ -161,7 +164,8 @@ module lc4_system(/*Clock input from FPGA pin*/
                     .i2addr(imem2_addr),
                     .i1out(imem1_out),
                     .i2out(imem2_out),
-                    .daddr(dmem_addr),
+                    .draddr(dmem_raddr),
+                    .dwaddr(dmem_waddr),
                     .din(dmem_in),
                     .dout(dmem_mout),
                     .dwe(dmem_we),

@@ -23,6 +23,7 @@ module lc4_processor(clk, rst, gwe,
 
    /* DO NOT MODIFY THIS CODE */
    parameter WORD_SIZE = 256;
+   parameter REG_ADDR_BITS = 3;
    input         clk;                // Main clock
    input         rst;                // Global reset
    input         gwe;                // Global we for single-step clock
@@ -39,12 +40,12 @@ module lc4_processor(clk, rst, gwe,
    output [15:0] test_cur_pc;        // Testbench: program counter
    output [15:0] test_cur_insn;      // Testbench: instruction bits
    output        test_regfile_we;    // Testbench: register file write enable
-   output [2:0]  test_regfile_wsel;  // Testbench: which register to write in the register file
-   output [15:0] test_regfile_data;  // Testbench: value to write into the register file
+   output [REG_ADDR_BITS-1:0]  test_regfile_wsel;  // Testbench: which register to write in the register file
+   output [WORD_SIZE-1:0] test_regfile_data;  // Testbench: value to write into the register file
    output        test_nzp_we;        // Testbench: NZP condition codes write enable
    output [2:0]  test_nzp_new_bits;  // Testbench: value to write to NZP bits
    output        test_dmem_we;       // Testbench: data memory write enable
-   output [WORD_SIZE-1:0] test_dmem_addr;     // Testbench: address to read/write memory
+   output [REG_ADDR_BITS-1:0] test_dmem_addr;     // Testbench: address to read/write memory
    output [WORD_SIZE-1:0] test_dmem_data;     // Testbench: value read/writen from/to memory
 
    input  [7:0]  switch_data;        // Current settings of the Zedboard switches
@@ -59,7 +60,7 @@ module lc4_processor(clk, rst, gwe,
    wire [15:0]   next_pc; // Next program counter (you compute this and feed it into next_pc)
 
    // Program counter register, starts at 0h at bootup
-   Nbit_reg #(16, 16'h8200) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
+   Nbit_reg #(16, 16'h0) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
 
 
    /* END DO NOT MODIFY THIS CODE */
@@ -86,7 +87,7 @@ module lc4_processor(clk, rst, gwe,
    wire[WORD_SIZE-1:0] r1data, r2data, ign_data, wdata;
    //(clk, gwe, rst, r1sel, r1data, r2sel, r2data, wsel, wdata, we);
    lc4_regfile #(.WORD_SIZE(WORD_SIZE))
-      lc4regfile (clk, gwe, rst, r1sel, r1data, r2sel, ign_data, wsel, wdata, regfile_we && (wsel != 3'b0 && wsel != 3'b1));
+      lc4regfile (clk, gwe, rst, r1sel, r1data, r2sel, ign_data, wsel, wdata, regfile_we && (wsel === 3'b0 || wsel === 3'b1));
   //Register R2 - R7 are in bram
   assign o_dmem_raddr = r2sel;
   assign o_dmem_we = regfile_we && wsel !== 3'b0 && wsel !== 3'b1;
@@ -109,10 +110,10 @@ module lc4_processor(clk, rst, gwe,
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;
    control_mux #(.WORD_SIZE(WORD_SIZE))
-      controlmux (select_pc_plus_one, alu_out, pc_plus_one, control_mux_out);
+      controlmux (select_pc_plus_one, alu_out, {{(WORD_SIZE-16){1'b0}},pc_plus_one}, control_mux_out);
 
    //Register input Mux
-   wire[WORD_SIZE:0] reg_input_mux_out;
+    wire[WORD_SIZE-1:0] reg_input_mux_out;
    //takes in is_load and choses between control_mux_out or memory_out(i_cur_dmem_data)
    //only need to assign wire wdata write enable and select are taken care of by decoder
    //assign wd to ^
@@ -140,7 +141,7 @@ module lc4_processor(clk, rst, gwe,
 
    //Branch_mux uses branch_out to chose between PC+1 and ALU out.
    //assign output to wire next_pc, already made by previous code
-   branch_mux branchmux (branch_out, alu_out, pc_plus_one, next_pc);
+   branch_mux branchmux (branch_out, alu_out[15:0], pc_plus_one, next_pc);
 
 
    //assign outputs
@@ -162,10 +163,10 @@ module lc4_processor(clk, rst, gwe,
    // below to display the value of signals at each clock cycle.
    // (Note: You are free to modify this code however you like.)
 
-//`define DEBUG
+`define DEBUG
 `ifdef DEBUG
    always @(posedge gwe) begin
-      $display("%d %h %b %h", $time, pc, insn, alu_out_pre_mux);
+      $display("%h %h %h %d %d %h", pc, i_cur_insn, wdata, r1data, r2data, alu_out);
    end
 `endif
 

@@ -22,8 +22,9 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, o_result);
       const0 (i_insn, i_pc, i_r1data, i_r2data, r_const);
    compare #(.WORD_SIZE(WORD_SIZE))
       cmp0 (i_insn, i_pc, i_r1data, i_r2data, r_cmp);
-   leftShift #(.WORD_SIZE(WORD_SIZE))
-      shift1 ({5'b0, i_insn[10:0]}, 16'd4, shifted);
+   //leftShift #(.WORD_SIZE(WORD_SIZE))
+      //shift1 ({5'b0, i_insn[10:0]}, 16'd4, shifted);
+   assign shifted = {{{1'b0},i_insn[10:0]}, 4'b0};
    assign pcJSR = (i_pc & 16'h8000) | shifted[15:0];
    assign pcTRAP = 16'h8000 | {8'b0, i_insn[7:0]};
 
@@ -93,10 +94,10 @@ module compare(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
    input [15:0] i_insn, i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
-   output [15:0] o_result;
+   output [WORD_SIZE-1:0] o_result;
    wire [15:0] r2;
    wire [16:0] ext1, ext2, s;
-
+   // TODO Need to modify this logic
    assign r2 = i_insn[8] == 0 ? i_r2data : (i_insn[7] == 0 ? {{9{i_insn[6]}}, i_insn[6:0]} : {9'b0, i_insn[6:0]});
    // if bit 7 is 0, signed comparison
    assign ext1 = i_insn[7] == 1'b0 ? {i_r1data[15], i_r1data[15:0]} : {1'b0, i_r1data[15:0]};
@@ -109,7 +110,7 @@ module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
    input [15:0] i_insn, i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
-   output [15:0] o_result;
+   output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] sll, sra, srl;
 
    leftShift #(.WORD_SIZE(WORD_SIZE)) shift0 (i_r1data, {12'b0, i_insn[3:0]}, sll);
@@ -117,7 +118,7 @@ module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    rightShiftAri #(.WORD_SIZE(WORD_SIZE)) shift2 (i_r1data, {12'b0, i_insn[3:0]}, sra);
    assign o_result = i_insn[5:4] == 2'b0 ? sll :
                      (i_insn[5:4] == 2'b1 ? sra :
-                     (i_insn[5:4] == 2'b10 ? srl : 16'b0));
+                     (i_insn[5:4] == 2'b10 ? srl : {WORD_SIZE{1'b0}}));
 endmodule
 
 //barrel shifter
