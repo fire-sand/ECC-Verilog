@@ -102,13 +102,6 @@ module lc4_system(/*Clock input from FPGA pin*/
   wire          dmem_we;
   wire [WORD_SIZE-1:0]   dmem_mout;
 
-  wire [13:0]   vga_addr;
-  wire [WORD_SIZE-1:0]   vga_data;
-
-  wire          kbdr = 1'b0;
-  wire          kbsr = 1'b0;
-  wire          tsr = 1'b0;
-
   // MEMORY/DEVICE MUX
   //wire [WORD_SIZE-1:0]   dmem_out = dmem_we ? 16'h0000 :
                 //(dmem_addr == 16'hFE00) ? {kbsr, {15{1'b0}}} :
@@ -168,42 +161,6 @@ module lc4_system(/*Clock input from FPGA pin*/
                     .dwaddr(dmem_waddr),
                     .din(dmem_in),
                     .dout(dmem_mout),
-                    .dwe(dmem_we),
-                    .vaddr({2'b11, vga_addr}),
-                    .vout(vga_data),     //VGA data out
-                    .vclk(pixel_clk)     //VGA clock
+                    .dwe(dmem_we)
                     );
-
-
-  // PS/2 KEYBOARD CONTROLLER
-  //fake_pb_kbd fake_kbd_inst( .read_kbsr( read_kbsr ),
-                            //.kbsr( kbsr ),
-                            //.read_kbdr( read_kbdr ),
-                            //.kbdr( kbdr ),
-              //.proc_clk( proc_clk ),
-              //.reset( GLOBAL_RST ),
-              //.ZED_PB( ZED_PB ));
-
-
-  // Timer device
-  //timer_device timer(.write_interval( write_tir ),
-                    //.interval_in( dmem_in ),
-                    //.read_status( read_tsr ),
-                    //.status_out ( tsr ),
-                    //.GWE(GLOBAL_WE),
-                    //.RST(GLOBAL_RST),
-                    //.CLK(proc_clk));
-
-  //vga_controller handles the VGA signals.
-  // PMG: removed outputs not used on the Zedboard
-  //vga_controller vga_cntrl_inst(.PIXEL_CLK(~pixel_clk),
-                                //.RESET(GLOBAL_RST),
-                                //.VGA_HSYNCH(VGA_HSYNCH),
-                                //.VGA_VSYNCH(VGA_VSYNCH),
-                                //.VGA_OUT_RED(VGA_OUT_RED),
-                                //.VGA_OUT_GREEN(VGA_OUT_GREEN),
-                                //.VGA_OUT_BLUE(VGA_OUT_BLUE),
-                                //.VGA_ADDR(vga_addr),
-                                //.VGA_DATA(vga_data[14:0]));
-
 endmodule

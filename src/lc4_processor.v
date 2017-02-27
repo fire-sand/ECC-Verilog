@@ -105,7 +105,7 @@ module lc4_processor(clk, rst, gwe,
    wire[WORD_SIZE-1:0] alu_out;
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
-      lc4alu (i_cur_insn, pc, r1data, r2data, alu_out);
+      lc4alu (i_cur_insn, pc, r1data, r2data, carry_reg_out, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;
@@ -128,6 +128,10 @@ module lc4_processor(clk, rst, gwe,
 
    wire[2:0] nzp_reg_out;
    Nbit_reg #(3) nzp_reg (nzp_calc_out, nzp_reg_out, clk, nzp_we, gwe, rst);
+
+   wire carry_reg_in;
+   wire carry_reg_out;
+   Nbit_reg #(1) carry_reg (r1data[0], carry_reg_out, clk, 1'b1, gwe, rst);
 
    wire[2:0] nzp_out;
    assign nzp_out = (nzp_we == 1'b1) ? nzp_calc_out : nzp_reg_out;
@@ -166,7 +170,7 @@ module lc4_processor(clk, rst, gwe,
 `define DEBUG
 `ifdef DEBUG
    always @(posedge gwe) begin
-      $display("%h %h %h %d %d %h", pc, i_cur_insn, wdata, r1data, r2data, alu_out);
+      $display("%h %h %h %h %h %b", pc, i_cur_insn, r1data, r2data, alu_out, nzp_out);
    end
 `endif
 

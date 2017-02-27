@@ -41,6 +41,7 @@
 `define INPUT_FILE        { `CODE_PATH, `TEST_CASE, ".trace"  }
 `define OUTPUT_FILE       { `CODE_PATH, `TEST_CASE, ".output" }
 `define MEMORY_IMAGE_FILE { `CODE_PATH, `TEST_CASE, ".hex"    }
+`define REG_IMAGE_FILE   { `CODE_PATH, `TEST_CASE, ".reg.hex"    }
 
 /* Define the full paths the the register file tests.
  * These are read by test_lc4_regfile.tf.

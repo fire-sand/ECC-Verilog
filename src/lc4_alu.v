@@ -1,10 +1,11 @@
 `timescale 1ns / 1ps
 
 
-module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, o_result);
+module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    parameter WORD_SIZE = 16;
    input [15:0] i_insn, i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
+   input carry;
    output [WORD_SIZE-1:0] o_result;
 
 
@@ -13,7 +14,7 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, o_result);
    wire [15:0] pcJSR, pcTRAP;
 
    arith #(.WORD_SIZE(WORD_SIZE))
-      ari0 (i_insn, i_pc, i_r1data, i_r2data, r_arith);
+      ari0 (i_insn, i_pc, i_r1data, i_r2data, carry, r_arith);
    logical #(.WORD_SIZE(WORD_SIZE))
       log0 (i_insn, i_pc, i_r1data, i_r2data, r_logical);
    shifter #(.WORD_SIZE(WORD_SIZE))
@@ -44,21 +45,24 @@ endmodule
 //ldr,str
 
 //arithmetic, BR, NOP, LDR, STR, JMP,
-module arith(i_insn, i_pc, i_r1data, i_r2data, o_result);
+module arith(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    parameter WORD_SIZE = 16;
    input [15:0] i_insn, i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
+   input carry;
    output [WORD_SIZE-1:0] o_result;
 
    //assign r2 = i_insn[15:12] == 4'b0 ? i_pc + 1'b1 : 1_r2data;
    assign o_result = i_insn[15:9] == 7'b0 ? i_pc + 16'b1 + {{7{i_insn[8]}}, i_insn[8:0]}:              //NOP
                      (i_insn[15:13] == 3'b011 ? i_r1data + {{10{i_insn[5]}}, i_insn[5:0]} :  //ldr, str
+                     (i_insn[5:4] == 2'b11 && i_insn[15:12] == 4'b1010 ? {carry, i_r2data[WORD_SIZE-1:1]} :
                      (i_insn[15:12] == 4'b0 ? {{7{i_insn[8]}}, i_insn[8:0]} + i_pc + 16'b1 :  //BR
                      (i_insn[15:11] == 5'b11001 ? {{5{i_insn[10]}}, i_insn[10:0]} + i_pc + 16'b1 :  // JMP
                      (i_insn[5:3] == 3'b0 ? i_r1data + i_r2data :    //add
-                     (i_insn[5:3] == 3'b1 ? 0 :// i_r1data * i_r2data :          //mul
+                     (i_insn[5:3] == 3'b1 ? {WORD_SIZE{i_r2data[0]}} :           //mul aka CHECK
                      (i_insn[5:3] == 3'b010 ? i_r1data - i_r2data :  //sub
-                     (i_insn[5] == 1'b1 ? i_r1data + {{11{i_insn[4]}}, i_insn[4:0]} : 16'b0))))))); //add
+                     (i_insn[5:3] == 3'b011 ? {1'b0, i_r1data[WORD_SIZE-1:1]} :  //div aka SDR1
+                     (i_insn[5] == 1'b1 ? i_r1data + {{(WORD_SIZE-5){i_insn[4]}}, i_insn[4:0]} : 16'hDEAD))))))))); //add
 
 endmodule
 
@@ -110,6 +114,7 @@ module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
    input [15:0] i_insn, i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
+   input carry;
    output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] sll, sra, srl;
 
@@ -118,7 +123,9 @@ module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    rightShiftAri #(.WORD_SIZE(WORD_SIZE)) shift2 (i_r1data, {12'b0, i_insn[3:0]}, sra);
    assign o_result = i_insn[5:4] == 2'b0 ? sll :
                      (i_insn[5:4] == 2'b1 ? sra :
-                     (i_insn[5:4] == 2'b10 ? srl : {WORD_SIZE{1'b0}}));
+                     (i_insn[5:4] == 2'b10 ? srl :
+                     16'hDEAD));
+                     //{carry, i_r2data[WORD_SIZE-1:1]})); //mod aka SDR2
 endmodule
 
 //barrel shifter

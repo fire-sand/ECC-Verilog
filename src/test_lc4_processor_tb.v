@@ -19,7 +19,7 @@
 
 module test_lc4_processor_tb();
 
-   parameter WORD_SIZE = 64;
+   parameter WORD_SIZE = 256;
    parameter REG_ADDR_BITS = 3;
 
    integer     input_file, output_file, errors, linenum;
@@ -65,7 +65,6 @@ module test_lc4_processor_tb();
    reg  [WORD_SIZE-1:0] verify_dmem_data;
    reg [15:0]  file_status;
 
-   wire [15:0] vout_dummy;  // video out
 
 
    always #5 clk <= ~clk;
@@ -93,10 +92,8 @@ module test_lc4_processor_tb();
                       .dwaddr(dmem_waddr),
           .din(dmem_tworite),
                       .dout(cur_dmem_data),
-                      .dwe(dmem_we),
-                      .vclk(1'b0),
-                      .vaddr(64'h0000),
-                      .vout(vout_dummy));
+                      .dwe(dmem_we)
+          );
 
 
    // Instantiate the Unit Under Test (UUT)

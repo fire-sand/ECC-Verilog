@@ -6,7 +6,7 @@
 // `endif
 
 // Memory module
-module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, draddr, dwaddr, din, dout, dwe, vclk, vaddr, vout);
+module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, draddr, dwaddr, din, dout, dwe);
    parameter WORD_SIZE = 16;
 
    input         idclk;
@@ -25,12 +25,8 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
    output [WORD_SIZE-1:0] dout;
    input         dwe;
 
-   input [15:0]  vaddr;
-   output [15:0] vout;
-   input         vclk;
-
    reg [15:0]    memory_i [1023:0]; // Instruction Memory
-   reg [WORD_SIZE-1:0] memory_d [31:0]; // Data memory
+   reg [WORD_SIZE-1:0] memory_d [31:2]; // Data memory
 
    reg [15:0]    read_addr;
    reg [15:0]    read_daddr;
@@ -57,9 +53,21 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
       $fclose(f);
       $readmemh(`MEMORY_IMAGE_FILE, memory_i, 0, 1023);
    end
+
+   initial
+     begin
+        f = 0; // Added to avoid a synthesis warning
+        $display("%s", `REG_IMAGE_FILE);
+      f = $fopen(`REG_IMAGE_FILE, "r");
+      if (f == 0)
+        begin
+           $display("Reg image file %s not found", `REG_IMAGE_FILE);
+           $stop;
+        end
+      $fclose(f);
+      $readmemh(`REG_IMAGE_FILE, memory_d, 2, 31);
+   end
    `endif
-
-
    assign iaddr = (i1re) ? i1addr : i2addr;
 
 
