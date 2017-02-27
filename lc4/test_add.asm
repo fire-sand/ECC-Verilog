@@ -1,75 +1,43 @@
 .OS
 .CODE
 .ADDR x8200
-LBL_8200 CONST R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-ADD R0, R0, #1
-END_LABEL ADD R1, R0, #1
+LBL_8200 CONST R0, #255  ; 0000 90FF
+ADD R0, R0, #1           ; 0001 1021
+CONST R1, #0             ; 0002 9200
+; ADD R2, Q, #0
+; ADD R3, B, #0
+CHECK_SR MUL R7, R0, R2  ; 0003 1E0A
+BRz LBL_F                ; 0004 0401
+ADD R1, R1, R3           ; 0005 1243
+LBL_F DIV R1, R1, R2     ; 0006 125A
+MOD R2, R1, R2           ; 0007 A47A
+ADD R0, R0, #-1          ; 0008 103F
+BRnp CHECK_SR            ; 0009 0BF9
+ADD R4, R1, R2           ; 000a 1842
+END_LABEL NOP            ; 000b 0000
+
+; 90FF
+; 1021
+; 9200
+; 1E0A
+; 0401
+; 1243
+; 125A
+; A47A
+; 103F
+; 0BF9
+; 1842
+
+; .OS
+; .CODE
+; .ADDR x8200
+; LBL_8200 CONST R0, #1
+; CONST R2, #1
+; ADD R2, R0, R2
+; ADD R3, R0, R2
+; BRzp LBL_HERE
+; NOP
+; NOP
+; LBL_HERE CONST R3, #9
+; ADD R4, R0, R3
+; END_LABEL NOP
