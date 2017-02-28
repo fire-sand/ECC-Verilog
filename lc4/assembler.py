@@ -9,6 +9,23 @@ instructions = [ "NOP", "BRp", "BRz", "BRzp", "BRn", "BRnp", "BRnz", "BRnzp"
                , "SLL", "SRA", "SRL", "MOD"
                , "JMPR", "JMP", "HICONST", "TRAP"]
 
+def parseInstruction(words, pc, labels, outfile):
+    # "NOP", "BRp", "BRz", "BRzp", "BRn", "BRnp", "BRnz", "BRnzp"
+    out = 0 # integer representation of instruction
+    if words[0] == "NOP":
+        out = 0;
+    if words[0] == "BRp":
+        if words[1] not in labels:
+            printf("invalid label")
+            sys.exit(1)
+        else:
+            pass #TODO
+
+
+    outfile.write("{:04X}\n".format(0))
+
+
+
 def main():
     if (len(sys.argv) != 2):
         print ("Usage: assembler.py <file.asm>")
@@ -42,6 +59,7 @@ def main():
                 labels[words[0]] = pc
                 words = words[1:]
         # Actual instruction
+        parseInstruction(words, pc, labels, outfile)
         print words
 
 
