@@ -2,12 +2,8 @@
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" ng-app="courseApp" ng-controller="courseController">
   <head>
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css" type="text/css" rel="stylesheet" media="screen">
-    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.js"></script>
-    <script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.js"></script>
-    <script src="js/functions.js"></script>
 
     <style>
       .lc4table tbody {
@@ -156,9 +152,19 @@
             <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>00 0<Rt>ttt</Rt></td>
           </tr>
           <tr>
+            <td>MUL <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> * <Rt>Rt</Rt></td>
+            <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>00 1<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
             <td>SUB <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
             <td><Rd>Rd</Rd> = <Rs>Rs</Rs> - <Rt>Rt</Rt></td>
             <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>01 0<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>DIV <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> / <Rt>Rt</Rt></td>
+            <td>0001 <Rd>ddd</Rd><Rs>s ss</Rs>01 1<Rt>ttt</Rt></td>
           </tr>
           <tr>
             <td>ADD <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
@@ -202,11 +208,61 @@
             <td>0100 1<imm>iii iiii iiii</imm></td>
           </tr>
         </tbody>
+
+        <tbody id="logical">
+          <tr>
+            <td>AND <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> & <Rt>Rt</Rt></td>
+            <td>0101 <Rd>ddd</Rd><Rs>s ss</Rs>00 0<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>NOT <Rd>Rd</Rd> <Rs>Rs</Rs></td>
+            <td><Rd>Rd</Rd> = ~<Rs>Rs</Rs></td>
+            <td>0101 <Rd>ddd</Rd><Rs>s ss</Rs>00 1<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>OR  <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> | <Rt>Rt</Rt></td>
+            <td>0101 <Rd>ddd</Rd><Rs>s ss</Rs>01 0<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>XOR <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> ^ <Rt>Rt</Rt></td>
+            <td>0101 <Rd>ddd</Rd><Rs>s ss</Rs>01 1<Rt>ttt</Rt></td>
+          </tr>
+          <tr>
+            <td>AND <Rd>Rd</Rd> <Rs>Rs</Rs> <imm>IMM5</imm></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> & sext(<imm>IMM5</imm>)</td>
+            <td>0101 <Rd>ddd</Rd><Rs>s ss</Rs>1<imm>i iiii</imm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="memory">
+          <tr>
+            <td>LDR <Rd>Rd</Rd> <Rs>Rs</Rs> <imm>IMM6</imm></td>
+            <td><Rd>Rd</Rd> = dmem[<Rs>Rs</Rs> + sext(<imm>IMM6</imm>)]</td>
+            <td>0110 <Rd>ddd</Rd><Rs>s ss</Rs><imm>ii iiii</imm></td>
+          </tr>
+          <tr>
+            <td>STR <Rt>Rt</Rt> <Rs>Rs</Rs> <imm>IMM6</imm></td>
+            <td>dmem[<Rs>Rs</Rs> + sext(<imm>IMM6</imm>)] = <Rt>Rt</Rt></td>
+            <td>0111 <Rt>ttt</Rt><Rs>s ss</Rs><imm>ii iiii</imm></td>
+          </tr>
+        </tbody>
+
         <tbody id="rti">
           <tr>
             <td>RTI</td>
             <td>PC = R7; PSR [15] = 0</td>
             <td >1000 <x>xxxx xxxx xxxx</x></td>
+          </tr>
+        </tbody>
+
+        <tbody id="const">
+          <tr>
+            <td>CONST <Rd>Rd</Rd> <imm>IMM9</imm></td>
+            <td><Rd>Rd</Rd> = sext(<imm>IMM9</imm>)</td>
+            <td>1001 <Rd>ddd</Rd><imm>i iiii iiii</imm></td>
           </tr>
         </tbody>
 
@@ -216,13 +272,49 @@
             <td><Rd>Rd</Rd> = <Rs>Rs</Rs> &lt;&lt; <uimm>UIMM4</uimm></td>
             <td>1010 <Rd>ddd</Rd><Rs>s ss</Rs>00 <uimm>uuuu</uimm></td>
           </tr>
+          <tr>
+            <td>SRA <Rd>Rd</Rd> <Rs>Rs</Rs> <uimm>UIMM4</uimm></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> &gt;&gt;&gt; <uimm>UIMM4</uimm></td>
+            <td>1010 <Rd>ddd</Rd><Rs>s ss</Rs>01 <uimm>uuuu</uimm></td>
+          </tr>
+          <tr>
+            <td>SRL <Rd>Rd</Rd> <Rs>Rs</Rs> <uimm>UIMM4</uimm></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> &gt;&gt; <uimm>UIMM4</uimm></td>
+            <td>1010 <Rd>ddd</Rd><Rs>s ss</Rs>10 <uimm>uuuu</uimm></td>
+          </tr>
+          <tr>
+            <td>MOD <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs> % <Rt>Rt</Rt></td>
+            <td>1010 <Rd>ddd</Rd><Rs>s ss</Rs>11 <x>x</x><Rt>ttt</Rt></td>
+          </tr>
         </tbody>
 
         <tbody id="jumps">
           <tr>
+            <td>JMPR <Rs>Rs</Rs></td>
+            <td>PC = <Rs>Rs</Rs></td>
+            <td>1100 0<x>xx</x><Rs>s ss</Rs><x>xx xxxx</x></td>
+          </tr>
+          <tr>
             <td>JMP  &lt;Label&gt;</td>
             <td>PC = PC + 1 + sext(<imm>IMM11</imm> offset to &lt;Label&gt;)</td>
             <td>1100 1<imm>iii iiii iiii</imm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="hiconst">
+          <tr>
+            <td>HICONST <Rd>Rd</Rd> <uimm>UIMM8</uimm></td>
+            <td><Rd>Rd</Rd> = (<Rs>Rd</Rs> & 0xFF) | (<uimm>UIMM8</uimm>) &lt;&lt; 8)</td>
+            <td>1101 <Rd>ddd</Rd><x>x</x> <uimm>uuuu uuuu</uimm></td>
+          </tr>
+        </tbody>
+
+        <tbody id="trap">
+          <tr>
+            <td>TRAP <uimm>UIMM8</uimm></td>
+            <td><Rd>R7</Rd> = PC + 1; PC = (0x8000 | <uimm>UIMM8</uimm>); PSR[15] = 1</td>
+            <td>1111 xxxx <uimm>uuuu uuuu</uimm></td>
           </tr>
         </tbody>
       </table>

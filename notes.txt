@@ -1,3 +1,12 @@
+1. Write assembly for ECC
+2. Edit assembly to support signed multiplicaiton
+3. Add mux to allow use of R2-R32 for single register instructions
+4. Write assembler to compile code
+5. Test Simulation
+6. Write Loader for FPGA
+7. Run on FPGA?
+
+
 Will need to take into account the one cyle delay of reading from bram. Meaning when you select the place you want to read out of, it will take one extra cycle. This may cause issues when reading from memory and loading it into a register.
 
 
