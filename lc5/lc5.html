@@ -202,18 +202,19 @@
             <td><Rd>Rd</Rd> = {<Rs>Rs</Rs>[0], <Rt>Rt</Rt> >> 1}</td>
             <td>0111 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
           </tr>
+          <tr>
+            <td>CHK</td>
+            <td>NZP = sign({WORD_SIZE{<Rs>Rs</Rs>[0]}})</td>
+            <td>1000 0<x>xxx xx</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
+          </tr>
         </tbody>
         <tbody id="done">
           <tr>
             <td>DONE</td>
             <td>Signal to loader that computation is complete</td>
-            <td>1000 0<x>xxx xxxx xxxx xxxx</x></td>
+            <td>1000 1<x>xxx xxxx xxxx xxxx</x></td>
           </tr>
-          <tr>
-            <td>CHK</td>
-            <td><Rd>Rd</Rd> = {WORD_SIZE{<Rs>Rs</Rs>[0]}}</td>
-            <td>1000 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
-          </tr>
+
         </tbody>
       </table>
       <br/>

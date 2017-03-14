@@ -20,7 +20,9 @@
 module test_lc4_processor_tb();
 
    parameter WORD_SIZE = 256;
-   parameter REG_ADDR_BITS = 3;
+   parameter REG_ADDR_BITS = 5;
+   parameter INSN = 19;
+   parameter IADDR = 10;
 
    integer     input_file, output_file, errors, linenum;
    integer     num_cycles;
@@ -31,30 +33,30 @@ module test_lc4_processor_tb();
    // Inputs
    reg clk;
    reg rst;
-   wire [15:0] cur_insn;
+   wire [INSN:0] cur_insn;
    wire [WORD_SIZE-1:0] cur_dmem_data;
 
    // Outputs
-   wire [15:0] cur_pc;
+   wire [IADDR:0] cur_pc;
    wire [REG_ADDR_BITS-1:0] dmem_raddr;
    wire [REG_ADDR_BITS-1:0] dmem_waddr;
    wire [WORD_SIZE-1:0] dmem_tworite;
    wire        dmem_we;
 
    wire [1:0]  test_stall;       // Testbench: is this is stall cycle? (don't compare the test values)
-   wire [15:0] test_pc;          // Testbench: program counter
-   wire [15:0] test_insn;        // Testbench: instruction bits
+   wire [INSN:0] test_pc;          // Testbench: program counter
+   wire [INSN:0] test_insn;        // Testbench: instruction bits
    wire        test_regfile_we;  // Testbench: register file write enable
-   wire [2:0]  test_regfile_reg; // Testbench: which register to write in the register file
+   wire [REG_ADDR_BITS-1:0]  test_regfile_reg; // Testbench: which register to write in the register file
    wire [WORD_SIZE-1:0] test_regfile_in;  // Testbench: value to write into the register file
    wire        test_nzp_we;      // Testbench: NZP condition codes write enable
    wire [2:0]  test_nzp_new_bits;      // Testbench: value to write to NZP bits
    wire        test_dmem_we;     // Testbench: data memory write enable
-   wire [2:0] test_dmem_addr;   // Testbench: address to write memory
+   wire [REG_ADDR_BITS-1:0] test_dmem_addr;   // Testbench: address to write memory
    wire [WORD_SIZE-1:0] test_dmem_data;  // Testbench: value to write memory
 
-   reg  [15:0] verify_pc;
-   reg  [15:0] verify_insn;
+   reg  [IADDR:0] verify_pc;
+   reg  [INSN:0] verify_insn;
    reg         verify_regfile_we;
    reg  [2:0]  verify_regfile_reg;
    reg  [WORD_SIZE-1:0] verify_regfile_in;
@@ -117,8 +119,7 @@ module test_lc4_processor_tb();
                             .test_nzp_new_bits(test_nzp_new_bits),
                             .test_dmem_we(test_dmem_we),
                             .test_dmem_addr(test_dmem_addr),
-                            .test_dmem_data(test_dmem_data),
-                            .switch_data(8'd0)
+                            .test_dmem_data(test_dmem_data)
                             );
 
    initial begin

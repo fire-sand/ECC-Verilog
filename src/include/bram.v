@@ -8,6 +8,9 @@
 // Memory module
 module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, draddr, dwaddr, din, dout, dwe);
    parameter WORD_SIZE = 16;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+   parameter DADDR = 4;
 
    input         idclk;
    input         i1re;
@@ -15,27 +18,28 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
    input         dre;
    input         gwe;
    input         rst;
-   input [15:0]  i1addr;
-   input [15:0]  i2addr;
-   output [15:0] i1out;
-   output [15:0] i2out;
-   input [2:0]  draddr;
-   input [2:0]  dwaddr;
+   input [IADDR:0]  i1addr;
+   input [IADDR:0]  i2addr;
+   output [INSN:0] i1out;
+   output [INSN:0] i2out;
+   input [DADDR:0]  draddr;
+   input [DADDR:0]  dwaddr;
    input [WORD_SIZE-1:0]  din;
    output [WORD_SIZE-1:0] dout;
    input         dwe;
 
-   reg [15:0]    memory_i [1023:0]; // Instruction Memory
+   reg [INSN:0]    memory_i [1023:0]; // Instruction Memory
    reg [WORD_SIZE-1:0] memory_d [31:2]; // Data memory
 
-   reg [15:0]    read_addr;
-   reg [15:0]    read_daddr;
+   reg [IADDR:0]    read_addr;
+   reg [DADDR:0]    read_daddr;
 
-   wire [15:0]   iaddr, iout;
+   wire [IADDR:0]   iaddr;
+   wire [INSN:0] iout;
 
    // Writing on gwe doesn't work on board for some reason, but dre works
    wire          data_we = dwe && (dre || gwe);
-   reg [15:0]    mem_out_i, mem_out_i2;
+   reg [INSN:0]    mem_out_i, mem_out_i2;
    reg [WORD_SIZE-1:0] mem_out_d;
 
    `ifdef __ICARUS__
@@ -92,11 +96,11 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
 
    wire i1re_latched_one_cycle = i2re; // i1re + 1 clkid cycle
    wire i2re_latched_one_cycle = dre; // i2re + 1 clkid cycle
-   wire [15:0] i1out_latched, i2out_latched;
+   wire [INSN:0] i1out_latched, i2out_latched;
 
    //time multiplex values by latching
-   Nbit_reg #(16, 16'd0) i1out_reg (.in(mem_out_i), .out(i1out_latched), .clk(idclk), .we(i1re_latched_one_cycle), .gwe(1'b1), .rst(rst));
-   Nbit_reg #(16, 16'd0) i2out_reg (.in(mem_out_i), .out(i2out_latched), .clk(idclk), .we(i2re_latched_one_cycle), .gwe(1'b1), .rst(rst));
+   Nbit_reg #(INSN+1, 20'd0) i1out_reg (.in(mem_out_i), .out(i1out_latched), .clk(idclk), .we(i1re_latched_one_cycle), .gwe(1'b1), .rst(rst));
+   Nbit_reg #(INSN+1, 20'd0) i2out_reg (.in(mem_out_i), .out(i2out_latched), .clk(idclk), .we(i2re_latched_one_cycle), .gwe(1'b1), .rst(rst));
 
    //bypass reg values
    assign i1out = (i1re_latched_one_cycle) ? mem_out_i : i1out_latched;

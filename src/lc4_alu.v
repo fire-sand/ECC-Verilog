@@ -3,7 +3,12 @@
 
 module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    parameter WORD_SIZE = 64;
-   input [15:0] i_insn, i_pc;
+   parameter DADDR = 4;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    input carry;
    output [WORD_SIZE-1:0] o_result;
@@ -47,7 +52,11 @@ endmodule
 //arithmetic, BR, NOP, LDR, STR, JMP,
 module arith(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    input carry;
    output [WORD_SIZE-1:0] o_result;
@@ -69,7 +78,11 @@ endmodule
 
 module logical(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
 
@@ -84,7 +97,11 @@ endmodule
 
 module constant(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] r;
@@ -97,7 +114,11 @@ endmodule
 //0010
 module compare(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [15:0] r2;
@@ -113,7 +134,11 @@ endmodule
 
 module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] sll, sra, srl;

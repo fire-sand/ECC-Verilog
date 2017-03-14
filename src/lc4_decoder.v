@@ -35,7 +35,7 @@ module lc4_decoder(insn,
 
 
    // Register file
-   assign r1sel = insn[9:5] // Rs
+   assign r1sel = insn[9:5]; // Rs
    assign r1re = opcode == 5'b00101 | // ADD
                  opcode == 5'b00110 | // SUB
                  opcode == 5'b00111 | // ADD I
@@ -44,11 +44,11 @@ module lc4_decoder(insn,
                  opcode == 5'b01101 | // SRL
                  opcode == 5'b01110 | // SDRH
                  opcode == 5'b01111 | // SDRL
-                 opcode == 5'b10001 | // SDRL
+                 opcode == 5'b10000; // CHK
 
 
 
-   assign r1sel = insn[4:0] // Rt
+   assign r1sel = insn[4:0]; // Rt
 
    assign r2re = opcode == 5'b00101 | // ADD
                  opcode == 5'b00110 | // SUB
@@ -60,12 +60,13 @@ module lc4_decoder(insn,
    assign wsel = (opcode == 5'b01000) // JSR
                     ? 3'd7 : insn[14:10];  /*rd*/
 
-   assign regfile_we = r1re |
-                        opcode == 5'b01011 // CONST
-                        opcode == 5'b01000 // JSR
-   assign nzp_we = regfile_we;
+   assign nzp_we = r1re |
+                        opcode == 5'b01011 | // CONST
+                        opcode == 5'b01000; // JSR
+   assign regfile_we = nzp_we &&
+                 opcode != 5'b10000; // CHK
    assign select_pc_plus_one = opcode == 5'b01000; // JSR
-   assign is_control_insn = opcode == 5'b01000; // JSR
-                            opcode == 5'b01010 // RTI
+   assign is_control_insn = opcode == 5'b01000 | // JSR
+                            opcode == 5'b01010; // RTI
 
 endmodule

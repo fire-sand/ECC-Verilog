@@ -22,24 +22,27 @@ module lc4_memory(idclk,
                   );
 
   parameter WORD_SIZE = 16;
+  parameter INSN = 19;
+   parameter IADDR = 10;
+   parameter DADDR = 4;
   input       idclk;
   input       i1re;
   input       i2re;
   input       dre;
   input       gwe;
   input       rst;
-  input [15:0]  i1addr;
-  input [15:0]  i2addr;
-  output [15:0]   i1out;
-  output [15:0]   i2out;
-  input [2:0]  draddr;
-  input [2:0]  dwaddr;
+  input [IADDR:0]  i1addr;
+  input [IADDR:0]  i2addr;
+  output [INSN:0]   i1out;
+  output [INSN:0]   i2out;
+  input [DADDR:0]  draddr;
+  input [DADDR:0]  dwaddr;
   input [WORD_SIZE-1:0]  din;
   output [WORD_SIZE-1:0]   dout;
   input       dwe;
 
-   wire [15:0] i1out_not_delayed;
-   wire [15:0] i2out_not_delayed;
+   wire [INSN:0] i1out_not_delayed;
+   wire [INSN:0] i2out_not_delayed;
 
    bram #(.WORD_SIZE(WORD_SIZE))
      memory (.idclk(idclk),
@@ -59,16 +62,16 @@ module lc4_memory(idclk,
                 .dwe(dwe)
                 );
 
-   wire [15:0] i1out_delayed;
-   wire [15:0] i2out_delayed;
+   wire [INSN:0] i1out_delayed;
+   wire [INSN:0] i2out_delayed;
 
-   delay_eight_cycles #(16) delayer1 (.clk(idclk),
+   delay_eight_cycles #(20) delayer1 (.clk(idclk),
                           .gwe(gwe),
                           .rst(rst),
                           .in_value(i1out_not_delayed),
                           .out_value(i1out_delayed));
 
-   delay_eight_cycles #(16) delayer2 (.clk(idclk),
+   delay_eight_cycles #(20) delayer2 (.clk(idclk),
                           .gwe(gwe),
                           .rst(rst),
                           .in_value(i2out_not_delayed),
