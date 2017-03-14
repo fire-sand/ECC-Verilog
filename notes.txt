@@ -1,5 +1,7 @@
 1. Write assembly for ECC
-2. Edit assembly to support signed multiplicaiton
+2. Edit assembly to support signed multiplicaiton, and 255 bit split
+- Change check to use R1 after adding mux
+- note: change sub to use the same adder, just need to invert second input
 3. Add mux to allow use of R2-R32 for single register instructions
 4. Write assembler to compile code
 5. Test Simulation

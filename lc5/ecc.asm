@@ -185,7 +185,7 @@ ADD R0, R0, #1           ; 0001 1021
 CONST R1, #0             ; 0002 9200
 ; ADD R2, Q, #0
 ; ADD R3, B, #0
-CHECK_SR MUL R6, R0, R2  ; 0003 1E0A
+CHECK_SR CHK R6, R0, R2  ; 0003 1E0A
 BRz LBL_F                ; 0004 0401
 ADD R1, R1, R3           ; 0005 1243
 LBL_F SDRH R1, R1, R2     ; 0006 125A

@@ -85,7 +85,8 @@
     <div class="page-header">
       <div class="text-center">
 		    <h1>LC5 Instruction Set</h1>
-        <p>Inspired by LC4 and LC3</p>
+        <p>Inspired by <a href = "http://www.cis.upenn.edu/~cis371/17sp/lc4.html">LC4</a> and LC3</p>
+        <p>Syntax Highlighting for LC4: <a href ="https://github.com/dashwin/Sublime-LC4">Sublime</a> <a href = "https://atom.io/packages/language-lc4"> Atom</a></p>
       </div>
     </div>
 
@@ -199,7 +200,7 @@
           <tr>
             <td>SDRL <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
             <td><Rd>Rd</Rd> = {<Rs>Rs</Rs>[0], <Rt>Rt</Rt> >> 1}</td>
-            <td>0111 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+            <td>0111 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
           </tr>
         </tbody>
         <tbody id="done">
@@ -207,6 +208,11 @@
             <td>DONE</td>
             <td>Signal to loader that computation is complete</td>
             <td>1000 0<x>xxx xxxx xxxx xxxx</x></td>
+          </tr>
+          <tr>
+            <td>CHK</td>
+            <td><Rd>Rd</Rd> = {WORD_SIZE{<Rs>Rs</Rs>[0]}}</td>
+            <td>1000 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
         </tbody>
       </table>
