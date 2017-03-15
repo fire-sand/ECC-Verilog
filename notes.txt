@@ -9,7 +9,13 @@
 7. Run on FPGA?
 
 
-Will need to take into account the one cyle delay of reading from bram. Meaning when you select the place you want to read out of, it will take one extra cycle. This may cause issues when reading from memory and loading it into a register.
+
+Things we talked about:
+- To keep 255 bits in each register at the end of mult subroutine, keep MSB of RT in our single bit reg, unless we just issued an SDRH insn, then we should keep LSP of RS in our single bit reg. This one bit is then used by SDL and SDRL respectively
+
+
+
+Will need to take into account the one cycle delay of reading from bram. Meaning when you select the place you want to read out of, it will take one extra cycle. This may cause issues when reading from memory and loading it into a register.
 
 
 LC counts
