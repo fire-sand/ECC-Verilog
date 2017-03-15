@@ -1,7 +1,5 @@
 #! /bin/bash
 
-set -x
-
 if [ -d "/tmp/versi786.github.io" ]; then
   echo "Error: /tmp/versi786.github.io already exists"
   exit 1
