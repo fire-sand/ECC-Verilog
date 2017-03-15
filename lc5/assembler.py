@@ -6,36 +6,48 @@ import sys
 INSN_BIT_WIDTH = 20
 INSN_HEX_WIDTH = INSN_BIT_WIDTH / 4
 
-# insn requires 2 registers rs = {0,1}, rt = {2,31}
+insns_list =
 
-INSNS = {
-    'NOP': 0,
-    'BRz': 1,
-    'BRzp': 2,
-    'BRnp': 3,
-    'BRnz': 4,
-    'ADD': 5,
-    'SUB': 6,
-    'ADDi': 7,
-    'JSR': 8,
-    'AND': 9,
-    'RTI': 10,
-    'CONST': 11,
-    'SLL': 12,
-    'SRL': 13,
-    'SDRH': 14,
-    'SDRL': 15,
-    'CHK': 16,
-    'DONE': 17
-}
+INSNS = {insn: i for i, insn in enumerate([
+    'NOP',
+    'BRz',
+    'BRzp',
+    'BRnp',
+    'BRnz',
+    'ADD',
+    'SUB',
+    'ADDi',
+    'JSR',
+    'AND',
+    'RTI',
+    'CONST',
+    'SLL',
+    'SRL',
+    'SDRH',
+    'SDRL',
+    'CHK',
+    'DONE',
+    'SDL',
+    'XMP',
+    'TCDL',
+    'TCDH',
+    'TCS'
+])}
+
+LABELLED_INSNS = {INSNS[insn] for insn in {
+    'BRz', 'BRzp', 'BRnp', 'BRnz', 'JSR'
+}}
+
+THREE_REG_INSNS = {INSNS[insn] for insn in {
+    'ADD', 'SUB', 'ADDi', 'AND',
+    'SLL', 'SRL', 'SDRH', 'SDRL', 'CHK',
+    'SDL', 'XMP', 'TCS', 'TCDH', 'TCDL'
+}}
 
 ERR = '\n**Parsing Failed**\nError line: {}: {err}'
 REG_INVALID = '\n**Parsing Failed**\nError line: {}: invalid register {reg}: {reg_val}'
 REG_MISSING = '\n**Parsing Failed**\nError line: {}: Missing {reg} in {line}'
 
-
-REG_MIN = 0
-REG_MAX = 31
 REG_LO_RANGE = range(0,2)
 REG_HI_RANGE = range(2,32)
 
@@ -54,7 +66,7 @@ def parse_instruction(line_num, words, labels):
 
     ret = 0
 
-    if INSNS['BRz'] <= opcode <= INSNS['BRnz'] or opcode == INSNS['JSR']:
+    if opcode in LABELLED_INSNS:
         try:
             label = words[1]
         except:
@@ -67,9 +79,7 @@ def parse_instruction(line_num, words, labels):
 
         ret = (opcode << 15) | labels[label]
 
-    elif (INSNS['ADD'] <= opcode <= INSNS['ADDi'] or
-          INSNS['SLL'] <= opcode <= INSNS['CHK'] or
-          opcode == INSNS['AND']):
+    elif opcode in THREE_REG_INSNS:
 
         # Get register values with error handling
         try:
