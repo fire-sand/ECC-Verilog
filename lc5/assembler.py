@@ -1,78 +1,244 @@
 #! /usr/bin/env python
 
+import re
 import sys
-instructions = [ "NOP", "BRp", "BRz", "BRzp", "BRn", "BRnp", "BRnz", "BRnzp"
-               , "ADD", "MUL", "SUB", "DIV"
-               , "CMP", "CMPU", "CMPI", "CMPIU"
-               , "JSRR", "JSR", "AND", "NOT", "OR", "XOR"
-               , "LDR", "STR", "RTI", "CONST"
-               , "SLL", "SRA", "SRL", "MOD"
-               , "JMPR", "JMP", "HICONST", "TRAP"]
 
-def parseInstruction(words, pc, labels, outfile):
-    # "NOP", "BRp", "BRz", "BRzp", "BRn", "BRnp", "BRnz", "BRnzp"
-    out = 0 # integer representation of instruction
-    if words[0] == "NOP":
-        out = 0;
-    if words[0] == "BRp":
-        if words[1] not in labels:
-            printf("invalid label")
+INSN_BIT_WIDTH = 20
+INSN_HEX_WIDTH = INSN_BIT_WIDTH / 4
+
+insns_list =
+
+INSNS = {insn: i for i, insn in enumerate([
+    'NOP',
+    'BRz',
+    'BRzp',
+    'BRnp',
+    'BRnz',
+    'ADD',
+    'SUB',
+    'ADDi',
+    'JSR',
+    'AND',
+    'RTI',
+    'CONST',
+    'SLL',
+    'SRL',
+    'SDRH',
+    'SDRL',
+    'CHK',
+    'DONE',
+    'SDL',
+    'XMP',
+    'TCDL',
+    'TCDH',
+    'TCS'
+])}
+
+LABELLED_INSNS = {INSNS[insn] for insn in {
+    'BRz', 'BRzp', 'BRnp', 'BRnz', 'JSR'
+}}
+
+THREE_REG_INSNS = {INSNS[insn] for insn in {
+    'ADD', 'SUB', 'ADDi', 'AND',
+    'SLL', 'SRL', 'SDRH', 'SDRL', 'CHK',
+    'SDL', 'XMP', 'TCS', 'TCDH', 'TCDL'
+}}
+
+ERR = '\n**Parsing Failed**\nError line: {}: {err}'
+REG_INVALID = '\n**Parsing Failed**\nError line: {}: invalid register {reg}: {reg_val}'
+REG_MISSING = '\n**Parsing Failed**\nError line: {}: Missing {reg} in {line}'
+
+REG_LO_RANGE = range(0,2)
+REG_HI_RANGE = range(2,32)
+
+IMM5_MAX = pow(2,4)
+IMM9_MAX = pow(2,8)
+
+def parse_instruction(line_num, words, labels):
+    insn = words[0]
+    line = ' '.join(words)
+
+    try:
+        opcode = INSNS[insn]
+    except Exception as e:
+        print ERR.format(line_num, err='Invalid insn %s' % insn)
+        sys.exit(1)
+
+    ret = 0
+
+    if opcode in LABELLED_INSNS:
+        try:
+            label = words[1]
+        except:
+            print REG_MISSING.format(line_num, reg='LABEL', line=line)
             sys.exit(1)
+
+        if label not in labels:
+            print ERR.format(line_num, err='Invalid label %s' % label)
+            sys.exit(1)
+
+        ret = (opcode << 15) | labels[label]
+
+    elif opcode in THREE_REG_INSNS:
+
+        # Get register values with error handling
+        try:
+            rd = words[1]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rd', line=line)
+            sys.exit(1)
+        try:
+            rs = words[2]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rs', line=line)
+            sys.exit(1)
+        try:
+            rt = words[3]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rt or IMM5', line=line)
+            sys.exit(1)
+
+        # Make sure the registers are valid
+        assert rd.startswith('R'), REG_INVALID.format(line_num, reg='Rd', reg_val=rd)
+        assert rs.startswith('R'), REG_INVALID.format(line_num, reg='Rs', reg_val=rs)
+        assert rt.startswith('R') or rt.startswith('#'), REG_INVALID.format(line_num, reg='Rt', reg_val=rt)
+
+        is_imm = False
+        if rt.startswith('#') and opcode == INSNS['ADD']:
+            opcode = INSNS['ADDi']
+            is_imm = True
+
+        rd = int(rd[1:])
+        rs = int(rs[1:])
+        rt = int(rt[1:])
+
+        assert rd in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rd must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+
+        if is_imm:
+            assert rs in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+            assert -IMM5_MAX <= rt < IMM5_MAX, ERR.format(line_num, err='imm5 must be in the range [{}, {}]'.format(-IMM5_MAX, IMM5_MAX-1))
+            rt &= IMM5_MAX - 1
         else:
-            pass #TODO
+            assert rs in REG_LO_RANGE, ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_LO_RANGE[-1]))
+            assert rt in REG_HI_RANGE, ERR.format(line_num, err='Rt must be in the range [{}, {}]'.format(REG_HI_RANGE[0], REG_HI_RANGE[-1]))
+
+        ret = (opcode << 15) | (rd << 10) | (rs << 5) | rt
+
+    elif opcode == INSNS['RTI']:
+        ret = opcode << 15
+
+    elif opcode == INSNS['CONST']:
+
+        try:
+            rd = words[1]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rd', line=line)
+            sys.exit(1)
+        try:
+            imm = words[2]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='IMM9', line=line)
+            sys.exit(1)
 
 
-    outfile.write("{:04X}\n".format(0))
+        # Make sure the registers are valid
+        assert rd.startswith('R'), REG_INVALID.format(line_num, reg='Rd', reg_val=rd)
+        assert imm.startswith('#'), REG_INVALID.format(line_num, reg='Rt', reg_val=rt)
 
+        rd = int(rd[1:])
+        imm = int(imm[1:])
+
+        assert rd in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rd must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+        assert -IMM9_MAX <= imm < IMM9_MAX, ERR.format(line_num, err='imm9 must be in the range [{}, {}]'.format(-IMM9_MAX, IMM9_MAX-1))
+        imm &= IMM9_MAX - 1
+
+        ret = (opcode << 15) | (rd << 10) | imm
+
+
+    return "{0:0{1}X}".format(ret, INSN_HEX_WIDTH)
+
+
+def parse_lines(lines):
+    labels = {}
+    pc = 0
+    line_num = 0
+    hex_ret = ''
+    chex_ret = ''
+
+    # Populate labels dict
+    for i in xrange(len(lines)):
+        line = lines[i]
+        words = re.split(', |\s+', line)
+        insn = words[0]
+
+        # ignore empty lines and comments and commands that start with '.'
+        if not insn or insn.startswith(('.', ';')):
+            words = []
+
+        # Treat non existing instructions as labels
+        elif insn not in INSNS:
+            if insn in labels:
+                print ERR.format(line_num, err='Repeated label %s' % label)
+                sys.exit(1)
+
+            labels[insn] = pc
+            words = words[1:]
+
+        lines[i] = ' '.join(words)
+        if words:
+            pc += 1
+
+    # Actually parse instructions
+    for line in lines:
+        line_num += 1
+
+        words = re.split(', |\s+', line)
+        insn = words[0]
+
+        # ignore empty lines
+        if not insn:
+            continue
+
+        pinsn = parse_instruction(line_num, words, labels)
+        hex_ret += pinsn + '\n'
+
+        chex_ret += pinsn
+        chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
+
+    return (hex_ret, chex_ret)
 
 
 def main():
-    if (len(sys.argv) != 2):
+    if len(sys.argv) != 2:
         print ("Usage: assembler.py <file.asm>")
         sys.exit(1)
+
     asm_file = sys.argv[1]
-    hex_file = ""
+    hex_file = ''
+    chex_file = ''
     if not asm_file.endswith(".asm"):
         print ("Must be an asm file")
         sys.exit(1)
     else:
-        hex_file = asm_file[0:asm_file.find(".asm")]
-        hex_file += ".hex"
+        filename = asm_file[0:asm_file.find(".asm")]
+        hex_file = filename + '.hex'
+        chex_file = filename + '.chex'
 
     infile = open(asm_file, 'r')
-    outfile = open(hex_file, 'w')
     lines = infile.readlines()
     lines = [x.strip() for x in lines]
-    print lines
 
-    labels = {}
-    pc = 0;
-    for line in lines:
-        words = line.split()
-        if words[0].startswith("."): continue
-        if words[0] not in instructions:
-            # label
-            if words[0] in labels:
-                print "Repeated Label. Exit"
-                sys.exit(1)
-            else:
-                labels[words[0]] = pc
-                words = words[1:]
-        # Actual instruction
-        parseInstruction(words, pc, labels, outfile)
-        print words
-
-
-
-        # increment PC for each line
-        pc = pc + 1
-    print labels
-
-
-
+    outfile = open(hex_file, 'w')
+    outfile2 = open(chex_file, 'w')
+    hex_out, chex_out = parse_lines(lines)
+    outfile.write(hex_out)
+    outfile2.write(chex_out)
 
     infile.close()
     outfile.close()
+    outfile2.close()
+
+    print "Success!"
 
 if __name__ == "__main__":
     main()
