@@ -159,3 +159,6 @@ upload:
 screen:
 	screen /dev/ttyUSB1
 
+update_site:
+	bash ./lc5/update_site.sh
+
