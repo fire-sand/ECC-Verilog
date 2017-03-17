@@ -3,7 +3,12 @@
 
 module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    parameter WORD_SIZE = 64;
-   input [15:0] i_insn, i_pc;
+   parameter DADDR = 4;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    input carry;
    output [WORD_SIZE-1:0] o_result;
@@ -47,7 +52,11 @@ endmodule
 //arithmetic, BR, NOP, LDR, STR, JMP,
 module arith(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    input carry;
    output [WORD_SIZE-1:0] o_result;
@@ -59,7 +68,7 @@ module arith(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
                      (i_insn[15:12] == 4'b0 ? {{7{i_insn[8]}}, i_insn[8:0]} + i_pc + 16'b1 :  //BR
                      (i_insn[15:11] == 5'b11001 ? {{5{i_insn[10]}}, i_insn[10:0]} + i_pc + 16'b1 :  // JMP
                      (i_insn[5:3] == 3'b0 ? i_r1data + i_r2data :    //add
-                     (i_insn[5:3] == 3'b1 ? {WORD_SIZE{i_r2data[0]}} :           //mul aka CHECK
+                     (i_insn[5:3] == 3'b1 ? {WORD_SIZE{i_r2data[0]}} : //TODO need to change to R1          //mul aka CHECK
                      (i_insn[5:3] == 3'b010 ? i_r1data - i_r2data :  //sub
                      (i_insn[5:3] == 3'b011 ? {1'b0, i_r1data[WORD_SIZE-1:1]} :  //div aka SDR1
                      (i_insn[5] == 1'b1 ? i_r1data + {{(WORD_SIZE-5){i_insn[4]}}, i_insn[4:0]} : 16'hDEAD))))))))); //add
@@ -69,7 +78,11 @@ endmodule
 
 module logical(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
 
@@ -84,7 +97,11 @@ endmodule
 
 module constant(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] r;
@@ -97,7 +114,11 @@ endmodule
 //0010
 module compare(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [15:0] r2;
@@ -113,7 +134,11 @@ endmodule
 
 module shifter(i_insn, i_pc, i_r1data, i_r2data, o_result);
    parameter WORD_SIZE = 16;
-   input [15:0] i_insn, i_pc;
+   parameter INSN = 19;
+   parameter IADDR = 10;
+
+   input [INSN:0] i_insn;
+   input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    output [WORD_SIZE-1:0] o_result;
    wire [WORD_SIZE-1:0] sll, sra, srl;

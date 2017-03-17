@@ -85,7 +85,8 @@
     <div class="page-header">
       <div class="text-center">
 		    <h1>LC5 Instruction Set</h1>
-        <p>Inspired by LC4 and LC3</p>
+        <p>Inspired by <a href = "http://www.cis.upenn.edu/~cis371/17sp/lc4.html">LC4</a> and LC3</p>
+        <p>Syntax Highlighting for LC4: <a href ="https://github.com/dashwin/Sublime-LC4">Sublime</a> <a href = "https://atom.io/packages/language-lc4"> Atom</a></p>
       </div>
     </div>
 
@@ -199,14 +200,50 @@
           <tr>
             <td>SDRL <Rd>Rd</Rd> <Rs>Rs</Rs> <Rt>Rt</Rt></td>
             <td><Rd>Rd</Rd> = {<Rs>Rs</Rs>[0], <Rt>Rt</Rt> >> 1}</td>
-            <td>0111 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+            <td>0111 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+          </tr>
+          <tr>
+            <td>CHK</td>
+            <td>NZP = sign({WORD_SIZE{<Rs>Rs</Rs>[0]}})</td>
+            <td>1000 0<x>xxx xx</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
         </tbody>
         <tbody id="done">
           <tr>
             <td>DONE</td>
             <td>Signal to loader that computation is complete</td>
-            <td>1000 0<x>xxx xxxx xxxx xxxx</x></td>
+            <td>1000 1<x>xxx xxxx xxxx xxxx</x></td>
+          </tr>
+        </tbody>
+        <tbody id="SDL">
+          <tr>
+            <td>SDL</td>
+            <td><Rd>Rd</Rd> = {<Rs>Rs</Rs>[WORD_SIZE-1:1], <Rt>Rt</Rt>[WORD_SIZE-1]}</td>
+            <td>1001 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+          </tr>
+        </tbody>
+        <tbody id="XMP">
+          <tr>
+            <td>XMP</td>
+            <td><Rd>Rd</Rd> = <Rs>Rs</Rs>[WORD_SIZE-1] ^ <Rt>Rt</Rt>[WORD_SIZE-1]</td>
+            <td>1001 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+          </tr>
+        </tbody>
+        <tbody id="TC">
+          <tr>
+            <td>TCDL</td>
+            <td><Rd>Rd</Rd> = (~{<Rs>Rs</Rs>,<Rt>Rt</Rt>} + 1)[WORD_SIZE-1:0] # Rd == Rt</td>
+            <td>1010 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+          </tr>
+          <tr>
+            <td>TCDH</td>
+            <td><Rd>Rd</Rd> = (~{<Rs>Rs</Rs>,<Rt>Rt</Rt>} + 1)[2*WORD_SIZE-1:WORD_SIZE] # Rd == Rs</td>
+            <td>1010 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+          </tr>
+          <tr>
+            <td>TCS</td>
+            <td><Rd>Rd</Rd> = ~<Rs>Rs</Rs>[WORD_SIZE-1] + 1</td>
+            <td>1011 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
           </tr>
         </tbody>
       </table>

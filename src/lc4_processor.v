@@ -17,28 +17,29 @@ module lc4_processor(clk, rst, gwe,
                      test_stall, test_cur_pc, test_cur_insn,
                      test_regfile_we, test_regfile_wsel, test_regfile_data,
                      test_nzp_we, test_nzp_new_bits,
-                     test_dmem_we, test_dmem_addr, test_dmem_data,
-                     switch_data, seven_segment_data, led_data
+                     test_dmem_we, test_dmem_addr, test_dmem_data
                      );
 
    /* DO NOT MODIFY THIS CODE */
    parameter WORD_SIZE = 256;
-   parameter REG_ADDR_BITS = 3;
+   parameter REG_ADDR_BITS = 5;
+   parameter INSN = 19;
+   parameter IADDR = 10;
    input         clk;                // Main clock
    input         rst;                // Global reset
    input         gwe;                // Global we for single-step clock
 
-   output [15:0] o_cur_pc;           // Address to read from instruction memory
-   input  [15:0] i_cur_insn;         // Output of instruction memory
-   output [2:0] o_dmem_raddr;        // Address to read/write from/to data memory; SET TO 0x0000 FOR NON LOAD/STORE INSNS
-   output [2:0] o_dmem_waddr;        // Address to read/write from/to data memory; SET TO 0x0000 FOR NON LOAD/STORE INSNS
+   output [IADDR:0] o_cur_pc;           // Address to read from instruction memory
+   input  [INSN:0] i_cur_insn;         // Output of instruction memory
+   output [REG_ADDR_BITS-1:0] o_dmem_raddr;        // Address to read/write from/to data memory; SET TO 0x0000 FOR NON LOAD/STORE INSNS
+   output [REG_ADDR_BITS-1:0] o_dmem_waddr;        // Address to read/write from/to data memory; SET TO 0x0000 FOR NON LOAD/STORE INSNS
    input  [WORD_SIZE-1:0] i_cur_dmem_data;    // Output of data memory
    output        o_dmem_we;          // Data memory write enable
    output [WORD_SIZE-1:0] o_dmem_towrite;     // Value to write to data memory
 
    output [1:0]  test_stall;         // Testbench: is this is stall cycle? (don't compare the test values)
-   output [15:0] test_cur_pc;        // Testbench: program counter
-   output [15:0] test_cur_insn;      // Testbench: instruction bits
+   output [INSN:0] test_cur_pc;        // Testbench: program counter
+   output [INSN:0] test_cur_insn;      // Testbench: instruction bits
    output        test_regfile_we;    // Testbench: register file write enable
    output [REG_ADDR_BITS-1:0]  test_regfile_wsel;  // Testbench: which register to write in the register file
    output [WORD_SIZE-1:0] test_regfile_data;  // Testbench: value to write into the register file
@@ -48,19 +49,15 @@ module lc4_processor(clk, rst, gwe,
    output [REG_ADDR_BITS-1:0] test_dmem_addr;     // Testbench: address to read/write memory
    output [WORD_SIZE-1:0] test_dmem_data;     // Testbench: value read/writen from/to memory
 
-   input  [7:0]  switch_data;        // Current settings of the Zedboard switches
-   output [15:0] seven_segment_data; // Data to display to the Zedboard LCD
-   output [7:0]  led_data;           // Which Zedboard LEDs should be turned on?
-
    // Always execute one instruction each cycle
    assign test_stall = 2'b0;
 
    // pc wires attached to the PC register's ports
-   wire [15:0]   pc;      // Current program counter (read out from pc_reg)
-   wire [15:0]   next_pc; // Next program counter (you compute this and feed it into next_pc)
+   wire [IADDR:0]   pc;      // Current program counter (read out from pc_reg)
+   wire [IADDR:0]   next_pc; // Next program counter (you compute this and feed it into next_pc)
 
    // Program counter register, starts at 0h at bootup
-   Nbit_reg #(16, 16'h0) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
+   Nbit_reg #(IADDR+1, 11'h0) pc_reg (.in(next_pc), .out(pc), .clk(clk), .we(1'b1), .gwe(gwe), .rst(rst));
 
 
    /* END DO NOT MODIFY THIS CODE */
@@ -69,11 +66,11 @@ module lc4_processor(clk, rst, gwe,
     * TODO: INSERT YOUR CODE HERE *
     *******************************/
    //Decoder Module
-   wire [2:0] r1sel;                // rs
+   wire [REG_ADDR_BITS-1:0] r1sel;                // rs
    wire       r1re;                 // does this instruction read from rs?
-   wire [2:0] r2sel;                // rt
+   wire [REG_ADDR_BITS-1:0] r2sel;                // rt
    wire       r2re;                 // does this instruction read from rt?
-   wire [2:0] wsel;                 // rd
+   wire [REG_ADDR_BITS-1:0] wsel;                 // rd
    wire       regfile_we;           // does this instruction write to rd?
    wire       nzp_we;               // does this instruction write the NZP bits?
    wire       select_pc_plus_one;   // route PC+1 to the ALU instead of rs?
@@ -81,13 +78,13 @@ module lc4_processor(clk, rst, gwe,
    wire       is_store;             // is this a store instruction?
    wire       is_branch;            // is this a branch instruction?
    wire       is_control_insn;      // is this a control instruction (JSR, JSRR, RTI, JMPR, JMP, TRAP)?
-   lc4_decoder lc4decoder (i_cur_insn, r1sel, r1re, r2sel, r2re, wsel, regfile_we, nzp_we, select_pc_plus_one, is_load, is_store, is_branch, is_control_insn);
+   lc4_decoder lc4decoder (i_cur_insn, r1sel, r1re, r2sel, r2re, wsel, regfile_we, nzp_we, select_pc_plus_one, is_branch, is_control_insn);
 
    //Registers R0 and R1 and real registers
-   wire[WORD_SIZE-1:0] r1data, r2data, ign_data, wdata;
+   wire[WORD_SIZE-1:0] r1data, r2data, wdata;
    //(clk, gwe, rst, r1sel, r1data, r2sel, r2data, wsel, wdata, we);
    lc4_regfile #(.WORD_SIZE(WORD_SIZE))
-      lc4regfile (clk, gwe, rst, r1sel, r1data, r2sel, ign_data, wsel, wdata, regfile_we && (wsel === 3'b0 || wsel === 3'b1));
+      lc4regfile (clk, gwe, rst, r1sel, r1data, wsel, wdata, regfile_we && (wsel === 3'b0 || wsel === 3'b1));
   //Register R2 - R7 are in bram
   assign o_dmem_raddr = r2sel;
   assign o_dmem_we = regfile_we && wsel !== 3'b0 && wsel !== 3'b1;
@@ -97,20 +94,22 @@ module lc4_processor(clk, rst, gwe,
 
 
    //PC_plus_one
-   wire[15:0] pc_plus_one;
+   wire[IADDR:0] pc_plus_one;
    assign pc_plus_one = pc + 1;
 
 
    //ALU
+   wire[WORD_SIZE-1:0] r1_in;
    wire[WORD_SIZE-1:0] alu_out;
+   assign r1_in = (r1sel === 5'b0 | r1sel === 5'b1) ? r1data : r2data;
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
-      lc4alu (i_cur_insn, pc, r1data, r2data, carry_reg_out, alu_out);
+      lc4alu (i_cur_insn, pc, r1_in, r2data, carry_reg_out, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;
    control_mux #(.WORD_SIZE(WORD_SIZE))
-      controlmux (select_pc_plus_one, alu_out, {{(WORD_SIZE-16){1'b0}},pc_plus_one}, control_mux_out);
+      controlmux (select_pc_plus_one, alu_out, pc_plus_one, control_mux_out);
 
    //Register input Mux
     wire[WORD_SIZE-1:0] reg_input_mux_out;
@@ -145,7 +144,7 @@ module lc4_processor(clk, rst, gwe,
 
    //Branch_mux uses branch_out to chose between PC+1 and ALU out.
    //assign output to wire next_pc, already made by previous code
-   branch_mux branchmux (branch_out, alu_out[15:0], pc_plus_one, next_pc);
+   branch_mux branchmux (branch_out, alu_out[IADDR:0], pc_plus_one, next_pc);
 
 
    //assign outputs
@@ -191,8 +190,10 @@ endmodule
 
 module control_mux (is_control, alu_out, pc_plus_one, control_out);
     parameter WORD_SIZE = 16;
+    parameter IADDR = 10;
     input is_control;
-    input [WORD_SIZE-1:0] alu_out, pc_plus_one; // NOTE this will clip the output of ALU
+    input [WORD_SIZE-1:0] alu_out;
+    input [IADDR:0] pc_plus_one; // NOTE this will clip the output of ALU
     output [WORD_SIZE-1:0] control_out;
 
     assign control_out = (is_control == 1'b0) ? alu_out : ({{WORD_SIZE-16{1'b0}}, pc_plus_one});
@@ -220,26 +221,26 @@ endmodule
 
 
 module branch_logic (is_branch, is_control_insn, nzp_reg_out, insn, branch_out);
+    parameter INSN = 19;
     input is_branch;
     input is_control_insn;
     input [2:0] nzp_reg_out;
-    input [15:0] insn;
+    input [INSN:0] insn;
     output branch_out;
 
     wire [2:0] nzp;
-    assign nzp = nzp_reg_out & insn[11:9];
+    assign nzp = nzp_reg_out & insn[11:9]; // TODO need to change for new branch INSN
     assign branch_out = ((nzp != 3'b0) && is_branch || is_control_insn) ? 1'b1 : 1'b0;
 
 endmodule
 
 module branch_mux (branch_out, alu_mux_out, pc_plus_one, branch_mux_out);
+    parameter IADDR = 10;
     input branch_out;
-    input [15:0] alu_mux_out, pc_plus_one; // NOTE this will take the bottom bits of ALU out
-    output [15:0] branch_mux_out;
+    input [IADDR:0] alu_mux_out; // NOTE this will take the bottom bits of ALU out
+    input [IADDR:0] pc_plus_one;
+    output [IADDR:0] branch_mux_out;
 
     assign branch_mux_out = (branch_out == 1'b0) ? pc_plus_one : alu_mux_out;
 endmodule
-
-
-
 

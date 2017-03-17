@@ -12,7 +12,7 @@ all_test: setup
 		src/include/delay_eight_cycles.v \
 		src/include/one_pulse.v \
 		src/include/clock_util.v
-	./outputs/proc_test.out
+	# ./outputs/proc_test.out
 
 all: setup
 	$(CC) $(CFLAGS) src/lc4_processor.v src/Nbit_reg.v src/lc4_alu.v \
@@ -158,4 +158,7 @@ upload:
 	#python ../RSA-Python/shand.py
 screen:
 	screen /dev/ttyUSB1
+
+update_site:
+	bash ./lc5/update_site.sh
 
