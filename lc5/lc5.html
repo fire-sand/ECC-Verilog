@@ -76,7 +76,7 @@
     </style>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>LC4 Instruction Set v. 2015-01</title>
+		<title>LC5 Instruction Set</title>
 	</head>
 
 
@@ -152,7 +152,7 @@
         <tbody id="reg-jumps">
           <tr>
             <td>JSR &lt;Label&gt;</td>
-            <td>R7 = PC + 1; PC = (PC & 0x8000) | (<imm>IMM11</imm> &lt;&lt; 4 offset to &lt;Label&gt;)</td>
+            <td>R7 = PC + 1; PC = PC + 1 + sext(<imm>IMM9</imm> offset to &lt;Label&gt;)</td>
             <td>0100 0<x>xxx x</x><imm>iii iiii iiii</imm></td>
           </tr>
         </tbody>
@@ -231,19 +231,14 @@
         </tbody>
         <tbody id="TC">
           <tr>
-            <td>TCDL</td>
-            <td><Rd>Rd</Rd> = (~{<Rs>Rs</Rs>,<Rt>Rt</Rt>} + 1)[WORD_SIZE-1:0] # Rd == Rt</td>
-            <td>1010 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+            <td>TCS</td>
+            <td><Rd>Rd</Rd> = (~<Rt>RT</Rt> + 1)</td>
+            <td>1010 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
           <tr>
             <td>TCDH</td>
-            <td><Rd>Rd</Rd> = (~{<Rs>Rs</Rs>,<Rt>Rt</Rt>} + 1)[2*WORD_SIZE-1:WORD_SIZE] # Rd == Rs</td>
+            <td><Rd>Rd</Rd> = (~{<Rt>Rt</Rt>,prev} + 1)[2*WORD_SIZE-1:WORD_SIZE] # Rd == Rs, prev insn must be TCS of low bits</td>
             <td>1010 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
-          </tr>
-          <tr>
-            <td>TCS</td>
-            <td><Rd>Rd</Rd> = ~<Rs>Rs</Rs>[WORD_SIZE-1] + 1</td>
-            <td>1011 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
           </tr>
         </tbody>
       </table>

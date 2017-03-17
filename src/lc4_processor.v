@@ -130,7 +130,8 @@ module lc4_processor(clk, rst, gwe,
 
    wire carry_reg_in;
    wire carry_reg_out;
-   Nbit_reg #(1) carry_reg (r1data[0], carry_reg_out, clk, 1'b1, gwe, rst);
+   wire reg_input = (i_cur_insn[19:15] == 5'b01110) ? r1data[0] : !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]);
+   Nbit_reg #(1) carry_reg (reg_input, carry_reg_out, clk, 1'b1, gwe, rst);
 
    wire[2:0] nzp_out;
    assign nzp_out = (nzp_we == 1'b1) ? nzp_calc_out : nzp_reg_out;

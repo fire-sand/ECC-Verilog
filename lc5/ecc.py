@@ -100,15 +100,10 @@ def xform_affine_to_extended(pt):
 def ed(n, pt):
     (X, Y, Z, T) = pt
     Q = (0, 1, 1, 0)
-    for i in bin(n)[2:]:
+    for i in bin(n)[2:]: # n: 253 bits
         Q = add_elements(Q, Q)
-        print 'DOUBLE', Q
-        # print Q
         if i == '1':
-            print 'Q', Q
-            print 'pt', pt
             Q = add_elements(Q, pt)
-            print 'ADD', Q
     return Q
 
 # print ed(25, (0, 1, 1, 0))

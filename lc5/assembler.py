@@ -6,8 +6,6 @@ import sys
 INSN_BIT_WIDTH = 20
 INSN_HEX_WIDTH = INSN_BIT_WIDTH / 4
 
-insns_list =
-
 INSNS = {insn: i for i, insn in enumerate([
     'NOP',
     'BRz',
@@ -104,8 +102,9 @@ def parse_instruction(line_num, words, labels):
         assert rt.startswith('R') or rt.startswith('#'), REG_INVALID.format(line_num, reg='Rt', reg_val=rt)
 
         is_imm = False
-        if rt.startswith('#') and opcode == INSNS['ADD']:
-            opcode = INSNS['ADDi']
+        if rt.startswith('#'):
+            if opcode == INSNS['ADD']:
+                opcode = INSNS['ADDi']
             is_imm = True
 
         rd = int(rd[1:])
