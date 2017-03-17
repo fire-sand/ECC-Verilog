@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import ctypes
 import re
 import sys
 
@@ -27,9 +28,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'DONE',
     'SDL',
     'XMP',
-    'TCDL',
-    'TCDH',
-    'TCS'
+    'TCS',
+    'TCDH'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -39,7 +39,7 @@ LABELLED_INSNS = {INSNS[insn] for insn in {
 THREE_REG_INSNS = {INSNS[insn] for insn in {
     'ADD', 'SUB', 'ADDi', 'AND',
     'SLL', 'SRL', 'SDRH', 'SDRL', 'CHK',
-    'SDL', 'XMP', 'TCS', 'TCDH', 'TCDL'
+    'SDL', 'XMP', 'TCS', 'TCDH'
 }}
 
 ERR = '\n**Parsing Failed**\nError line: {}: {err}'
@@ -52,7 +52,7 @@ REG_HI_RANGE = range(2,32)
 IMM5_MAX = pow(2,4)
 IMM9_MAX = pow(2,8)
 
-def parse_instruction(line_num, words, labels):
+def parse_instruction(pc, line_num, words, labels):
     insn = words[0]
     line = ' '.join(words)
 
@@ -75,7 +75,10 @@ def parse_instruction(line_num, words, labels):
             print ERR.format(line_num, err='Invalid label %s' % label)
             sys.exit(1)
 
-        ret = (opcode << 15) | labels[label]
+        # Calculates offset for PC = PC + 1 + IMM9(offset)
+        offset = labels[label] - pc - 1
+
+        ret = (opcode << 15) | (offset & (IMM9_MAX - 1))
 
     elif opcode in THREE_REG_INSNS:
 
@@ -103,9 +106,9 @@ def parse_instruction(line_num, words, labels):
 
         is_imm = False
         if rt.startswith('#'):
+            is_imm = True
             if opcode == INSNS['ADD']:
                 opcode = INSNS['ADDi']
-            is_imm = True
 
         rd = int(rd[1:])
         rs = int(rs[1:])
@@ -153,7 +156,6 @@ def parse_instruction(line_num, words, labels):
 
         ret = (opcode << 15) | (rd << 10) | imm
 
-
     return "{0:0{1}X}".format(ret, INSN_HEX_WIDTH)
 
 
@@ -187,6 +189,8 @@ def parse_lines(lines):
         if words:
             pc += 1
 
+    pc = 0
+
     # Actually parse instructions
     for line in lines:
         line_num += 1
@@ -198,11 +202,13 @@ def parse_lines(lines):
         if not insn:
             continue
 
-        pinsn = parse_instruction(line_num, words, labels)
+        pinsn = parse_instruction(pc, line_num, words, labels)
         hex_ret += pinsn + '\n'
 
         chex_ret += pinsn
         chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
+
+        pc += 1
 
     return (hex_ret, chex_ret)
 
