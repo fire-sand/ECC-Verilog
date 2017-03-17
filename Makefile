@@ -15,7 +15,7 @@ all_test: setup
 	# ./outputs/proc_test.out
 
 all: setup
-	$(CC) $(CFLAGS) src/lc4_processor.v src/Nbit_reg.v src/lc4_alu.v \
+	$(CC) $(CFLAGS) src/lc4_processor.v src/Nbit_reg.v src/alu.v \
 		src/lc4_regfile.v src/lc4_decoder.v \
 		src/system.v \
 		src/include/bram.v src/include/memory.v \

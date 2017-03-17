@@ -23,7 +23,7 @@ module lc4_regfile(clk, gwe, rst, r1sel, r1data, wsel, wdata, we);
 
    input [n-1:0]  wdata;           // data to write if we is set
    input          we;              // write-enable
-   output [n-1:0] r1data, r2data;  // data read out of r1 and r2
+   output [n-1:0] r1data;  // data read out of r1 and r2
 
    // register readout wires for each register in the register file
    wire [n-1:0]   r0, r1;

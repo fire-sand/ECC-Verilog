@@ -124,9 +124,6 @@ module lc4_system(/*Clock input from FPGA pin*/
                           .i_cur_dmem_data(dmem_mout),
                           .o_dmem_we(dmem_we),
                           .o_dmem_towrite(dmem_in),
-                          .switch_data(SWITCH_IN),
-                          .seven_segment_data(seven_segment_data),
-                          .led_data(led_data)
                           );
 
   assign imem2_addr = 16'd0;
