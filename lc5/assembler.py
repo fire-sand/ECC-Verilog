@@ -189,14 +189,11 @@ def parse_lines(lines):
         if words:
             pc += 1
 
-    pc = -1
+    pc = 0
 
     # Actually parse instructions
     for line in lines:
         line_num += 1
-
-        if line:
-            pc += 1
 
         words = re.split(', |\s+', line)
         insn = words[0]
@@ -210,6 +207,8 @@ def parse_lines(lines):
 
         chex_ret += pinsn
         chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
+
+        pc += 1
 
     return (hex_ret, chex_ret)
 
