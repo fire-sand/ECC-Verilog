@@ -71,8 +71,8 @@ module lc4_processor(clk, rst, gwe,
    wire       regfile_we;           // does this instruction write to rd?
    wire       nzp_we;               // does this instruction write the NZP bits?
    wire       select_pc_plus_one;   // route PC+1 to the ALU instead of rs?
-   wire       is_load;              // is this a load instruction?
-   wire       is_store;             // is this a store instruction?
+   wire       is_load = 1'b0;       // is this a load instruction?
+   wire       is_store = 1'b0;      // is this a store instruction?
    wire       is_branch;            // is this a branch instruction?
    wire       is_control_insn;      // is this a control instruction (JSR, JSRR, RTI, JMPR, JMP, TRAP)?
    lc4_decoder lc4decoder (i_cur_insn, r1sel, r1re, r2sel, r2re, wsel, regfile_we, nzp_we, select_pc_plus_one, is_branch, is_control_insn);

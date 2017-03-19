@@ -30,7 +30,7 @@
 // `define TEST_CASE "test_all"
 // `define TEST_CASE "house"
 // `define TEST_CASE "wireframe"
-`define TEST_CASE "ours"
+`define TEST_CASE "test_ecc"
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE */
 

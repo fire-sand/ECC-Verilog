@@ -209,6 +209,8 @@ def parse_lines(lines):
         chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
 
         pc += 1
+    for i in xrange(pc,1024):
+        hex_ret += "0000\n"
 
     return (hex_ret, chex_ret)
 
