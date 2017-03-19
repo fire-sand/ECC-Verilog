@@ -40,12 +40,18 @@ LABELLED_INSNS = {INSNS[insn] for insn in {
 THREE_REG_INSNS = {INSNS[insn] for insn in {
     'ADD', 'SUB', 'ADDi', 'AND',
     'SLL', 'SRL', 'SDRH', 'SDRL',
-    'SDL', 'CHKH', 'TCS', 'TCDH'
+    'SDL', 'CHKH'
+}}
+
+TWO_REG_INSNS = {INSNS[insn] for insn in {
+    'TCS', 'TCDH'
 }}
 
 ONE_REG_INSNS = {INSNS[insn] for insn in {
     'CHKL', 'CHKH'
 }}
+
+
 
 ERR = '\n**Parsing Failed**\nError line: {}: {err}'
 REG_INVALID = '\n**Parsing Failed**\nError line: {}: invalid register {reg}: {reg_val}'
@@ -131,6 +137,32 @@ def parse_instruction(pc, line_num, words, labels):
 
         ret = (opcode << 15) | (rd << 10) | (rs << 5) | rt
 
+    elif opcode in TWO_REG_INSNS:
+
+        # Get register values with error handling
+        try:
+            rd = words[1]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rd', line=line)
+            sys.exit(1)
+        try:
+            rs = words[1]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rs', line=line)
+            sys.exit(1)
+
+        # Make sure register is valid
+        assert rd.startswith('R'), REG_INVALID.format(line_num, reg='Rd', reg_val=rd)
+        assert rs.startswith('R'), REG_INVALID.format(line_num, reg='Rs', reg_val=rs)
+
+        rd = int(rd[1:])
+        rs = int(rs[1:])
+
+        assert rd in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rd must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+        assert rs in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+
+        ret = (opcode << 15) | (rd << 10) | (rs << 5)
+
     elif opcode in ONE_REG_INSNS:
         # Get register values with error handling
         try:
@@ -139,7 +171,7 @@ def parse_instruction(pc, line_num, words, labels):
             print REG_MISSING.format(line_num, reg='Rs', line=line)
             sys.exit(1)
 
-        # Make sure register is valid
+        # Make sure registers are valid
         assert rs.startswith('R'), REG_INVALID.format(line_num, reg='Rs', reg_val=rs)
 
         rs = int(rs[1:])
@@ -200,7 +232,7 @@ def parse_lines(lines):
         # Treat non existing instructions as labels
         elif insn not in INSNS:
             if insn in labels:
-                print ERR.format(line_num, err='Repeated label %s' % label)
+                print ERR.format(line_num, err='Repeated label %s' % insn)
                 sys.exit(1)
 
             labels[insn] = pc
@@ -228,7 +260,7 @@ def parse_lines(lines):
 
         chex_ret += '%04x | ' % pc
         chex_ret += pinsn
-        chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
+        chex_ret += ' | {0:0{1}b} | {2} \n'.format(int(pinsn, 16), INSN_BIT_WIDTH, line)
 
         pc += 1
 
