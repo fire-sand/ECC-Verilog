@@ -44,7 +44,11 @@ module lc4_decoder(insn,
                  opcode == 5'b01101 | // SRL
                  opcode == 5'b01110 | // SDRH
                  opcode == 5'b01111 | // SDRL
-                 opcode == 5'b10000; // CHK
+                 opcode == 5'b10000 | // CHKL
+                 opcode == 5'b10010 | // SDL
+                 opcode == 5'b10011 | // CHKH
+                 opcode == 5'b10100 | // TCS
+                 opcode == 5'b10101 ; // TCDH
 
 
 
@@ -56,6 +60,11 @@ module lc4_decoder(insn,
                  opcode == 5'b01101 | // SRL
                  opcode == 5'b01110 | // SDRH
                  opcode == 5'b01111;  // SDRL
+                 opcode == 5'b10010 | // SDL
+                 opcode == 5'b10100 | // TCS
+                 opcode == 5'b10101 ; // TCDH
+
+
 
    assign wsel = (opcode == 5'b01000) // JSR
                     ? 3'd7 : insn[14:10];  /*rd*/
@@ -63,8 +72,9 @@ module lc4_decoder(insn,
    assign nzp_we = r1re |
                         opcode == 5'b01011 | // CONST
                         opcode == 5'b01000; // JSR
-   assign regfile_we = nzp_we &&
-                 opcode != 5'b10000; // CHK
+   assign regfile_we = nzp_we &
+                 (opcode != 5'b10000 | // CHKL
+                 opcode != 5'b100011); // CHKH
    assign select_pc_plus_one = opcode == 5'b01000; // JSR
    assign is_control_insn = opcode == 5'b01000 | // JSR
                             opcode == 5'b01010; // RTI

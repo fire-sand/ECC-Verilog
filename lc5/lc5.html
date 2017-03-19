@@ -203,7 +203,7 @@
             <td>0111 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
           </tr>
           <tr>
-            <td>CHK</td>
+            <td>CHKL</td>
             <td>NZP = sign({WORD_SIZE{<Rs>Rs</Rs>[0]}})</td>
             <td>1000 0<x>xxx xx</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
@@ -226,19 +226,19 @@
           <tr>
             <td>CHKH</td>
             <td>NZP = sign({WORD_SIZE{<Rs>Rs</Rs>[WORD_SIZE]}})</td>
-            <td>1001 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+            <td>1001 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
         </tbody>
         <tbody id="TC">
           <tr>
             <td>TCS</td>
-            <td><Rd>Rd</Rd> = (~<Rt>RT</Rt> + 1)</td>
+            <td><Rd>Rd</Rd> = (~<Rs>Rs</Rs> + 1)</td>
             <td>1010 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
           <tr>
             <td>TCDH</td>
-            <td><Rd>Rd</Rd> = (~{<Rt>Rt</Rt>,prev} + 1)[2*WORD_SIZE-1:WORD_SIZE] # Rd == Rs, prev insn must be TCS of low bits</td>
-            <td>1010 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><Rt>t tttt</Rt></td>
+            <td><Rd>Rd</Rd> = (~{<Rs>Rs</Rs>,prev} + 1)[2*WORD_SIZE-1:WORD_SIZE] # Rd == Rs, prev insn must be TCS of low bits</td>
+            <td>1010 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
         </tbody>
       </table>
