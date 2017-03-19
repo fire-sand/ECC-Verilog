@@ -40,7 +40,7 @@ LABELLED_INSNS = {INSNS[insn] for insn in {
 THREE_REG_INSNS = {INSNS[insn] for insn in {
     'ADD', 'SUB', 'ADDi', 'AND',
     'SLL', 'SRL', 'SDRH', 'SDRL',
-    'SDL', 'CHKH'
+    'SDL'
 }}
 
 TWO_REG_INSNS = {INSNS[insn] for insn in {
