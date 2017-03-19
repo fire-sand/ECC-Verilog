@@ -200,7 +200,7 @@ def parse_lines(lines):
         # Treat non existing instructions as labels
         elif insn not in INSNS:
             if insn in labels:
-                print ERR.format(line_num, err='Repeated label %s' % label)
+                print ERR.format(line_num, err='Repeated label %s' % insn)
                 sys.exit(1)
 
             labels[insn] = pc

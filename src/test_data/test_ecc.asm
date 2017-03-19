@@ -180,20 +180,51 @@ RTI             ; Return
 ;; NOTE assumes that R2 and R3 are populated with the x and y
 ;; computes x * y and puts the result in R1(MSB) and R2(LSB)
 ;; BUG Check if top bits are cleared out if no overflow
-MULT_SR CONST R0, #255   ; 0000 90FF
-ADD R0, R0, #1           ; 0001 1021
-CONST R1, #0             ; 0002 9200
-; ADD R2, Q, #0
-; ADD R3, B, #0
-CHECK_SR CHK R6, R0, R2  ; 0003 1E0A
-BRz LBL_F                ; 0004 0401
-ADD R1, R1, R3           ; 0005 1243
-LBL_F SDRH R1, R1, R2     ; 0006 125A
-SDRL R2, R1, R2           ; 0007 A47A
-ADD R0, R0, #-1          ; 0008 103F
-BRnp CHECK_SR            ; 0009 0BF9
-; ADD R4, R1, R2         ; 000a 1842 Multiplication result in R1, R2
-RTI                      ; 000b 0000
+;; reference: http://users.utcluj.ro/~baruch/book_ssce/SSCE-Shift-Mult.pdf
+; Check signs
+; CHKH R2
+; if R2 is neg:
+;   TCS R2, R2
+;   CHKH R3
+;   if R3 is neg:
+;     TCS R3, R3
+;     CONST R6, #0
+;   else:
+;     CONST R6, #1
+; else:
+;   CHKH R3
+;   if R3 is neg:
+;     TCS R3, R3
+;     CONST R6, #1
+CONST R6, #0          ; R6 <- 0, Both P or Both N
+CHKH R2               ; R2 zp
+BRzp LBL_R3           ; if r2 is 0 or pos then branch
+TCS R2, R2            ; R2 is negative so invert
+CHKH R3               ; is R3 0 or pos
+BRzp LBL_R2N          ; if R3 is 0 or pos then branch
+TCS R3, R3            ; R3 is negative so invert
+BRzp LBL_MULT         ; flipped both so can go straight to mult
+LBL_R3 CHKH R3        ; R2 is pos, need to check R3
+BRzp LBL_MULT         ; if r3 is also pos or 0
+TCS R3, R3            ; r3 is negative so invert
+LBL_R2N CONST R6, #1  ; need to set flag to invert at the end, only one was neg
+; Do the actual Multiplication
+LBL_MULT CONST R0, #255
+ADD R0, R0, #1          ; N = 256
+CONST R1, #0            ; A = 0;
+CHECK_SR CHKL R2        ; Check lowest bit of Q
+BRz LBL_F               ; Yes/No
+ADD R1, R1, R3          ; A <- A + B
+LBL_F SDRH R1, R1, R2   ; Shift A_Q right
+SDRL R2, R1, R2         ; Shift A_Q right
+ADD R0, R0, #-1         ; N <- N - 1
+BRnp CHECK_SR           ; N == 0?
+SDL R1, R1, R2          ; split into {257,255}
+CHKL R6                 ; is R0 0 or 1
+BRz LBL_END_MULT
+TCS R2                  ; R2 is low bits
+TCDH R1                 ; R1 is high bits
+LBL_END_MULT RTI        ; Return
 
 
 ; Mod Step
