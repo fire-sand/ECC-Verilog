@@ -6,6 +6,7 @@ import sys
 
 INSN_BIT_WIDTH = 20
 INSN_HEX_WIDTH = INSN_BIT_WIDTH / 4
+INSN_MEM_SIZE = 1024
 
 INSNS = {insn: i for i, insn in enumerate([
     'NOP',
@@ -24,10 +25,10 @@ INSNS = {insn: i for i, insn in enumerate([
     'SRL',
     'SDRH',
     'SDRL',
-    'CHK',
+    'CHKL',
     'DONE',
     'SDL',
-    'XMP',
+    'CHKH',
     'TCS',
     'TCDH'
 ])}
@@ -38,8 +39,8 @@ LABELLED_INSNS = {INSNS[insn] for insn in {
 
 THREE_REG_INSNS = {INSNS[insn] for insn in {
     'ADD', 'SUB', 'ADDi', 'AND',
-    'SLL', 'SRL', 'SDRH', 'SDRL', 'CHK',
-    'SDL', 'XMP', 'TCS', 'TCDH'
+    'SLL', 'SRL', 'SDRH', 'SDRL', 'CHKL',
+    'SDL', 'CHKH', 'TCS', 'TCDH'
 }}
 
 ERR = '\n**Parsing Failed**\nError line: {}: {err}'
@@ -210,8 +211,9 @@ def parse_lines(lines):
         chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
 
         pc += 1
-    for i in xrange(pc,1024):
-        hex_ret += "0000\n"
+
+    # Fill rest of hex file with NOPs
+    hex_ret += "00000\n" * (INSN_MEM_SIZE - pc)
 
     return (hex_ret, chex_ret)
 
