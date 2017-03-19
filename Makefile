@@ -162,3 +162,11 @@ screen:
 update_site:
 	bash ./lc5/update_site.sh
 
+
+test_mult:
+	python ./lc5/assembler.py ./src/test_data/mult.asm
+	make > temp && vim temp
+
+test_ecc:
+	python ./lc5/assembler.py ./src/test_data/test_ecc.asm
+	make > temp && vim temp
