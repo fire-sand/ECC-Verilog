@@ -89,7 +89,7 @@ def parse_instruction(pc, line_num, words, labels):
         # Calculates offset for PC = PC + 1 + IMM9(offset)
         offset = labels[label] - pc - 1
 
-        ret = (opcode << 15) | (offset & (IMM9_MAX - 1))
+        ret = (opcode << 15) | (offset & (pow(2,9) - 1))
 
     elif opcode in THREE_REG_INSNS:
 
@@ -130,7 +130,7 @@ def parse_instruction(pc, line_num, words, labels):
         if is_imm:
             assert rs in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
             assert -IMM5_MAX <= rt < IMM5_MAX, ERR.format(line_num, err='imm5 must be in the range [{}, {}]'.format(-IMM5_MAX, IMM5_MAX-1))
-            rt &= IMM5_MAX - 1
+            rt &= pow(2, 5) - 1
         else:
             assert rs in REG_LO_RANGE, ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_LO_RANGE[-1]))
             assert rt in REG_HI_RANGE, ERR.format(line_num, err='Rt must be in the range [{}, {}]'.format(REG_HI_RANGE[0], REG_HI_RANGE[-1]))
@@ -202,7 +202,7 @@ def parse_instruction(pc, line_num, words, labels):
 
         assert rd in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rd must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
         assert -IMM9_MAX <= imm < IMM9_MAX, ERR.format(line_num, err='imm9 must be in the range [{}, {}]'.format(-IMM9_MAX, IMM9_MAX-1))
-        imm &= IMM9_MAX - 1
+        imm &= pow(2, 9) - 1
 
         ret = (opcode << 15) | (rd << 10) | imm
 
