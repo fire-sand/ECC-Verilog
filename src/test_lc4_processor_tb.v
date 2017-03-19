@@ -296,6 +296,9 @@ module test_lc4_processor_tb();
                   //errors = errors + 1;
                   //$finish;
                //end
+               if (test_insn === 20'h88000) begin
+                  $finish;
+               end
             end // if (next_instruction)
 
             // Advanced to the next cycle

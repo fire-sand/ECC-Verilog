@@ -126,9 +126,6 @@ def parse_instruction(pc, line_num, words, labels):
 
         ret = (opcode << 15) | (rd << 10) | (rs << 5) | rt
 
-    elif opcode == INSNS['RTI']:
-        ret = opcode << 15
-
     elif opcode == INSNS['CONST']:
 
         try:
@@ -155,6 +152,9 @@ def parse_instruction(pc, line_num, words, labels):
         imm &= IMM9_MAX - 1
 
         ret = (opcode << 15) | (rd << 10) | imm
+
+    else:
+        ret = opcode << 15
 
     return "{0:0{1}X}".format(ret, INSN_HEX_WIDTH)
 
@@ -205,6 +205,7 @@ def parse_lines(lines):
         pinsn = parse_instruction(pc, line_num, words, labels)
         hex_ret += pinsn + '\n'
 
+        chex_ret += '%04x | ' % pc
         chex_ret += pinsn
         chex_ret += ' # {} # {} \n'.format(line, bin(int(pinsn, 16)))
 
