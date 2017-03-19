@@ -39,8 +39,12 @@ LABELLED_INSNS = {INSNS[insn] for insn in {
 
 THREE_REG_INSNS = {INSNS[insn] for insn in {
     'ADD', 'SUB', 'ADDi', 'AND',
-    'SLL', 'SRL', 'SDRH', 'SDRL', 'CHKL',
+    'SLL', 'SRL', 'SDRH', 'SDRL',
     'SDL', 'CHKH', 'TCS', 'TCDH'
+}}
+
+ONE_REG_INSNS = {INSNS[insn] for insn in {
+    'CHKL', 'CHKH'
 }}
 
 ERR = '\n**Parsing Failed**\nError line: {}: {err}'
@@ -126,6 +130,22 @@ def parse_instruction(pc, line_num, words, labels):
             assert rt in REG_HI_RANGE, ERR.format(line_num, err='Rt must be in the range [{}, {}]'.format(REG_HI_RANGE[0], REG_HI_RANGE[-1]))
 
         ret = (opcode << 15) | (rd << 10) | (rs << 5) | rt
+
+    elif opcode in ONE_REG_INSNS:
+        # Get register values with error handling
+        try:
+            rs = words[1]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rs', line=line)
+            sys.exit(1)
+
+        # Make sure register is valid
+        assert rs.startswith('R'), REG_INVALID.format(line_num, reg='Rs', reg_val=rs)
+
+        rs = int(rs[1:])
+        assert rs in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+
+        ret = (opcode << 15) | (rs << 5)
 
     elif opcode == INSNS['CONST']:
 
