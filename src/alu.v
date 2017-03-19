@@ -32,7 +32,7 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
 
    adder_module #(.WORD_SIZE(WORD_SIZE))
       adder(rs, rt, arith_mux, sub_mux, tc_mux, carry, r_adder);
-   wire [IADDR:0] next_pc = i_pc + {{2{i_insn[8]}}, i_insn[8:0]};
+   wire [IADDR:0] next_pc = i_pc + {i_insn[8], i_insn[8:0]};
 
    assign o_result =
       (opcode == 5'b00000  | // NOP
@@ -68,11 +68,11 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
       (opcode == 5'b10010) ? // SDL
           {rs[WORD_SIZE-1:1], rt[WORD_SIZE-1]} :
 
-      (opcode == 5'b10000) ? // CHK
+      (opcode == 5'b10000) ? // CHKL
           {WORD_SIZE{rs[0]}} :
 
-      (opcode == 5'b10011) ? // XMP
-          rs[WORD_SIZE-1:0] ^ rt[WORD_SIZE-1:0] :
+      (opcode == 5'b10011) ? // CHKH
+            rs :
 
       (opcode == 5'b10100) | // TCS
       (opcode == 5'b10101) ? // TCDH

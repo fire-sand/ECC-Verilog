@@ -224,18 +224,18 @@
         <tbody id="CHKH">
           <tr>
             <td>CHKH <Rs>Rs</Rs></td>
-            <td>NZP = sign({WORD_SIZE{<Rs>Rs</Rs>[WORD_SIZE]}})</td>
+            <td>NZP = cmp <Rs>Rs</Rs>, 0</td>
             <td>1001 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
         </tbody>
         <tbody id="TC">
           <tr>
-            <td>TCS <Rs>Rs</Rs></td>
+            <td>TCS <Rd>Rd</Rd> <Rs>Rs</Rs></td>
             <td><Rd>Rd</Rd> = (~<Rs>Rs</Rs> + 1)</td>
             <td>1010 0<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>
           <tr>
-            <td>TCDH <Rs>Rs</Rs></td>
+            <td>TCDH <Rd>Rd</Rd> <Rs>Rs</Rs></td>
             <td><Rd>Rd</Rd> = (~{<Rs>Rs</Rs>,prev} + 1)[2*WORD_SIZE-1:WORD_SIZE] # Rd == Rs, prev insn must be TCS of low bits</td>
             <td>1010 1<Rd>ddd dd</Rd><Rs>ss sss</Rs><x>x xxxx</x></td>
           </tr>

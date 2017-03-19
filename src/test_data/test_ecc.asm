@@ -33,6 +33,7 @@
 ; R19 <- Y
 ; R20 <- Z
 ; R21 <- T
+; R23 <- 2 * d
 
 ;     (X, Y, Z, T) = pt ;This is passed in my loader into R24-R27
 ;     Q = (0, 1, 1, 0)  ; Need to set this for POINT_ADD_SR
@@ -41,7 +42,7 @@ CONST R25, #1
 CONST R26, #1
 CONST R27, #0
 ;     for i in bin(n)[2:]:
-ADD R17, R17, #0 ; Check if R17 is 0
+CHKH R17    ; Check if R17 is 0
 BRz END_LABEL
 ;         Q = add_elements(Q, Q)
 ED_LOOP ADD R28, R24, #0
@@ -196,7 +197,7 @@ RTI             ; Return
 ;   if R3 is neg:
 ;     TCS R3, R3
 ;     CONST R6, #1
-CONST R6, #0          ; R6 <- 0, Both P or Both N
+MULT_SR CONST R6, #0  ; R6 <- 0, Both P or Both N
 CHKH R2               ; R2 zp
 BRzp LBL_R3           ; if r2 is 0 or pos then branch
 TCS R2, R2            ; R2 is negative so invert

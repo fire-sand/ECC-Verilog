@@ -1,7 +1,6 @@
 /*
  *
- * lc4_single.v
- * Implements a single-cycle data path
+ * lc4_single.v * Implements a single-cycle data path
  *
  * TODO: Contributions of each group member to this file
  */
@@ -83,7 +82,7 @@ module lc4_processor(clk, rst, gwe,
    lc4_regfile #(.WORD_SIZE(WORD_SIZE))
       lc4regfile (clk, gwe, rst, r1sel, r1data, wsel, wdata, regfile_we && (wsel === 3'b0 || wsel === 3'b1));
   //Register R2 - R7 are in bram
-  assign o_dmem_raddr = r2sel;
+  assign o_dmem_raddr = (r1sel === 5'b0 | r1sel === 5'b1) ? r2sel : r1sel;
   assign o_dmem_we = regfile_we && wsel !== 3'b0 && wsel !== 3'b1;
   assign o_dmem_towrite = wdata;     // Value to write to data memory
   assign o_dmem_waddr = wsel;
@@ -101,7 +100,7 @@ module lc4_processor(clk, rst, gwe,
    assign r1_in = (r1sel === 5'b0 | r1sel === 5'b1) ? r1data : r2data;
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
-      lc4alu (i_cur_insn, pc, r1_in, r2data, carry_reg_out, alu_out);
+      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2data, carry_reg_out, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;
@@ -226,8 +225,12 @@ module branch_logic (is_branch, is_control_insn, nzp_reg_out, insn, branch_out);
     input [INSN:0] insn;
     output branch_out;
 
-    wire [2:0] nzp;
-    assign nzp = nzp_reg_out & insn[11:9]; // TODO need to change for new branch INSN
+    wire [2:0] nzp_t =  (insn[19:15] == 5'b00001) ? 010 :
+                        (insn[19:15] == 5'b00010) ? 011 :
+                        (insn[19:15] == 5'b00011) ? 101 :
+                        (insn[19:15] == 5'b00100) ? 110 :
+                                                    000;
+    wire [2:0] nzp = nzp_reg_out & nzp_t;
     assign branch_out = ((nzp != 3'b0) && is_branch || is_control_insn) ? 1'b1 : 1'b0;
 
 endmodule
