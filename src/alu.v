@@ -17,19 +17,13 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    wire arith_mux;
    wire sub_mux;
    wire tc_mux;
-   wire [WORD_SIZE-1:0] shifted = {WORD_SIZE{1'b0}};
    wire [WORD_SIZE-1:0] rs = i_r1data;
    wire [WORD_SIZE-1:0] rt;
-
    wire [WORD_SIZE-1:0] r_adder;
-   wire [WORD_SIZE-1:0] r_shift;
-   wire [WORD_SIZE-1:0] r_tc;
 
    assign arith_mux = (opcode == 5'b00101 || opcode == 5'b00110 || opcode == 5'b00111);
-   assign sub_mux = (opcode == 5'b00110);
+   assign sub_mux = (opcode == 5'b00110); // SUB
    assign tc_mux = (opcode == 5'b10110); // TCS
-
-   assign shifted = {{{1'b0},i_insn[10:0]}, 4'b0};
 
    assign rt =
       (opcode == 5'b00111) | // ADDI -- sext(5)
@@ -93,7 +87,7 @@ module adder_module(i_r1data, i_r2data, i_arith_mux, i_sub_mux, i_tc_mux, carry,
    input [WORD_SIZE-1:0] i_r2data;
    input i_arith_mux; // Arith or TC
    input i_sub_mux; // SUB or ADD
-   input  i_tc_mux; // TCS or TCDH
+   input i_tc_mux; // TCS or TCDH
    input carry;
    output [WORD_SIZE-1:0] o_adder;
 
