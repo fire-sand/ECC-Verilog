@@ -48,7 +48,7 @@ module lc4_decoder(insn,
 
 
 
-   assign r1sel = insn[4:0]; // Rt
+   assign r2sel = insn[4:0]; // Rt
 
    assign r2re = opcode == 5'b00101 | // ADD
                  opcode == 5'b00110 | // SUB

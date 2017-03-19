@@ -2,7 +2,7 @@
 
 
 module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
-   parameter WORD_SIZE = 64;
+   parameter WORD_SIZE = 256;
    parameter DADDR = 4;
    parameter INSN = 19;
    parameter IADDR = 10;

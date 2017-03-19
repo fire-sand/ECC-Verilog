@@ -1,7 +1,4 @@
 /*
- Aasif Versi - versia
- Renyao Wei - renyaow
- Dong Young Kim - kido
  *
  * lc4_single.v
  * Implements a single-cycle data path

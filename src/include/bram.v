@@ -29,7 +29,7 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
    input         dwe;
 
    reg [INSN:0]    memory_i [1023:0]; // Instruction Memory
-   reg [WORD_SIZE-1:0] memory_d [31:2]; // Data memory
+   reg [WORD_SIZE-1:0] memory_d [31:0]; // Data memory
 
    reg [IADDR:0]    read_addr;
    reg [DADDR:0]    read_daddr;
@@ -99,11 +99,12 @@ module bram(idclk, i1re, i2re, dre, gwe, rst, i1addr, i2addr, i1out, i2out, drad
    wire [INSN:0] i1out_latched, i2out_latched;
 
    //time multiplex values by latching
-   Nbit_reg #(INSN+1, 20'd0) i1out_reg (.in(mem_out_i), .out(i1out_latched), .clk(idclk), .we(i1re_latched_one_cycle), .gwe(1'b1), .rst(rst));
-   Nbit_reg #(INSN+1, 20'd0) i2out_reg (.in(mem_out_i), .out(i2out_latched), .clk(idclk), .we(i2re_latched_one_cycle), .gwe(1'b1), .rst(rst));
+   Nbit_reg #(20, 20'd0) i1out_reg (.in(mem_out_i), .out(i1out_latched), .clk(idclk), .we(i1re_latched_one_cycle), .gwe(1'b1), .rst(rst));
+   Nbit_reg #(20, 20'd0) i2out_reg (.in(mem_out_i), .out(i2out_latched), .clk(idclk), .we(i2re_latched_one_cycle), .gwe(1'b1), .rst(rst));
 
    //bypass reg values
-   assign i1out = (i1re_latched_one_cycle) ? mem_out_i : i1out_latched;
+   //assign i1out = (i1re_latched_one_cycle) ? mem_out_i : i1out_latched;
+   assign i1out = mem_out_i; //: i1out_latched;
    assign i2out = (i2re_latched_one_cycle) ? mem_out_i : i2out_latched;
 
    assign dout = mem_out_d;

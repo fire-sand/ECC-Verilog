@@ -25,7 +25,7 @@ endmodule
 module lc4_we_gen(clk, i1re, i2re, dre, gwe);
     input clk;
     output i1re;
-	 output i2re;
+    output i2re;
     output dre;
     output gwe;
 

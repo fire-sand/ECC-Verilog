@@ -1,5 +1,5 @@
 CC=yosys
-CFLAGS=-p "synth_ice40 -abc2  -blif outputs/test.blif" -ql outputs/test.log -o outputs/test_syn.v
+CFLAGS=-p "synth_ice40 -abc2 -blif outputs/test.blif" -ql outputs/test.log -o outputs/test_syn.v
 # CFLAGS=-p "prep; show -stretch -prefix count -format dot"
 
 all_test: setup
@@ -45,7 +45,7 @@ single: setup
 
 
 alu: setup
-	$(CC) $(CFLAGS) src/lc4_alu.v
+	$(CC) $(CFLAGS) src/alu.v
 	sleep 1
 	arachne-pnr outputs/test.blif -o outputs/test.txt -d 8k
 
