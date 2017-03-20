@@ -1,4 +1,5 @@
 outputs/*
 *.sw*
 *.output
+*.trace
 src/include/set_testcase.v

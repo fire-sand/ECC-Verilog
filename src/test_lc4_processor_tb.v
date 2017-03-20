@@ -193,6 +193,20 @@ module test_lc4_processor_tb();
          next_instruction = 0;  // false
          while (!next_instruction | 1'b1) begin
 
+            if (output_file) begin
+              $fdisplay(output_file, "%h %b %h %h %h %h %h %h %h %h",
+                        verify_pc,
+                        verify_insn,
+                        verify_regfile_we,
+                        verify_regfile_reg,
+                        verify_regfile_in,
+                        verify_nzp_we,
+                        verify_nzp_new_bits,
+                        verify_dmem_we,
+                        verify_dmem_addr,
+                        verify_dmem_data);
+            end
+
             if (test_stall == 2'd0) begin
                num_exec = num_exec + 1;
                next_instruction = 1;  // true
