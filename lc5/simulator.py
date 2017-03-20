@@ -163,14 +163,14 @@ def run_insns(insns, outfile, debug_file):
             alu_out = REG_FILE[rs] << uimm4
 
         elif opcode == INSNS['SRL']:
-            alu_out = REG_FILE[rs] >> uimm4
+            alu_out = (REG_FILE[rs] & (pow(2, 256) - 1)) >> uimm4
 
         elif opcode == INSNS['SDRH']:
-            alu_out = REG_FILE[rs] >> 1
+            alu_out = (REG_FILE[rs] & (pow(2, 256) - 1)) >> 1
 
         elif opcode == INSNS['SDRL']:
             snd_lsb = (REG_FILE[rs] & 1)
-            alu_out = (snd_lsb << 255) | (REG_FILE[rt] >> 1)
+            alu_out = (snd_lsb << 255) | ((REG_FILE[rt] & (pow(2, 256) - 1)) >> 1)
 
         elif opcode == INSNS['CHKL']:
             lsb = str(REG_FILE[rs] & 1) * WORD_SIZE
@@ -182,7 +182,7 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['SDL']:
             # rs_list = list(bin(REG_FILE[rs])[2:])
-            alu_out = (REG_FILE[rs] & (pow(2, 256) - 2)) | ((REG_FILE[rt] & MASK_OP) >> 255)
+            alu_out = (REG_FILE[rs] & (pow(2, 256) - 2)) | ((REG_FILE[rt] & (pow(2, 256) - 1)) >> 255)
             # rs_list[-1] = str()
             # print rs_list
             # alu_out = int(''.join(rs_list), 2)
