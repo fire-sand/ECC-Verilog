@@ -114,12 +114,13 @@ def sign_extend(value, bits):
     return (value & (sign_bit - 1)) - (value & sign_bit)
 
 
-def run_insns(insns, outfile):
+def run_insns(insns, outfile, debug_file):
     pc = 0
     carry = 0
     iters = 0
     NZP = 0
-    while iters < NUM_ITERS:
+    end = False
+    while not end:
         insn = int(insns[pc], 16)
         opcode = insn >> 15
         pc_plus_one = pc + 1
@@ -177,7 +178,7 @@ def run_insns(insns, outfile):
 
         elif opcode == INSNS['DONE']:
             alu_out = 0xDEAD
-            break
+            end = True
 
         elif opcode == INSNS['SDL']:
             rs_list = list(bin(REG_FILE[rs])[2:])
@@ -196,7 +197,7 @@ def run_insns(insns, outfile):
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out
-        reg_input_mux_out = control_out
+        reg_input_mux_out = control_out & (pow(2, 256) - 1)
         wdata = reg_input_mux_out
 
         nzp_calc_out = nzp_calc(reg_input_mux_out)
@@ -206,10 +207,14 @@ def run_insns(insns, outfile):
         next_pc = alu_out if branch_out else pc_plus_one
 
         # Print pc (hex), insn (binary), regfile_we, regfile_reg, regfile_in, nzp_we, nzp_new_bits
-        output = '{:0{}X} {:0{}b} {:X} {:0{}X} {:0{}X} {:X} {:0{}X}\n'.format(
-            pc, 10, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 5, wdata, 64, NZP_WE, nzp_calc_out, 3)
+        output = '{:0{}x} {:0{}b} {:x} {:0{}x} {:0{}x} {:x} {:0{}b}\n'.format(
+            pc, 10, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 2, wdata, 64, NZP_WE, nzp_calc_out, 3)
+
+        debug_output = '{:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}b}\n'.format(
+            pc, 3, insn, INSN_BIT_WIDTH / 4, REG_FILE[rs], 64, REG_FILE[rt], 64, wdata, 64, nzp_calc_out, 3)
 
         outfile.write(output)
+        debug_file.write(debug_output)
 
         pc = next_pc
         NZP = nzp_out
@@ -237,6 +242,7 @@ def branch_logic(is_branch, is_control, nzp_reg_out, insn):
 
 
 def main():
+    global REG_FILE
     if len(sys.argv) != 2:
         print ("Usage: simulator.py <file.hex>")
         sys.exit(1)
@@ -248,13 +254,20 @@ def main():
     else:
         filename = hex_file[0:hex_file.find(".hex")]
         trace_file = filename + '.trace'
+        debug_file = filename + '.debug.trace'
+        reghex_file = filename + '.reg.hex'
+
+    with open(reghex_file) as f:
+        for i, line in enumerate(f):
+            REG_FILE[i + 2] = int(line)
 
     infile = open(hex_file, 'r')
     outfile = open(trace_file, 'w')
+    debugfile = open(debug_file, 'w')
     lines = infile.readlines()
     insns = [x.strip() for x in lines]
 
-    run_insns(insns, outfile)
+    run_insns(insns, outfile, debugfile)
 
     infile.close()
     outfile.close()
