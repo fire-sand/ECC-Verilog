@@ -102,7 +102,7 @@ def decode(insn):
 
 def nzp_calc(reg_input_mux_out):
     if reg_input_mux_out == 0:
-        return 0b000
+        return 0b010
     elif reg_input_mux_out < 0:
         return 0b100
     else:
@@ -126,9 +126,9 @@ def run_insns(insns, outfile, debug_file):
         pc_plus_one = pc + 1
         decode(insn)
 
-        rd = (insn & MASK_RD) >> 10
-        rs = (insn & MASK_RS) >> 5
-        rt = insn & MASK_RT
+        rd = WSEL
+        rs = R1_SEL
+        rt = R2_SEL
 
         # TODO: Make sure to sign extend
         imm5 = sign_extend(insn & 0x1F, 5)
@@ -170,7 +170,7 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['SDRL']:
             snd_lsb = (REG_FILE[rs] & 1)
-            alu_out = (snd_lsb << 256) | (REG_FILE[rt] >> 1)
+            alu_out = (snd_lsb << 255) | (REG_FILE[rt] >> 1)
 
         elif opcode == INSNS['CHKL']:
             lsb = str(REG_FILE[rs] & 1) * WORD_SIZE
