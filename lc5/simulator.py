@@ -103,7 +103,7 @@ def decode(insn):
 def nzp_calc(reg_input_mux_out):
     if reg_input_mux_out == 0:
         return 0b000
-    elif bin(reg_input_mux_out)[2:][0] == '1':
+    elif reg_input_mux_out < 0:
         return 0b100
     else:
         return 0b001
@@ -197,7 +197,7 @@ def run_insns(insns, outfile, debug_file):
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out
-        reg_input_mux_out = control_out & (pow(2, 256) - 1)
+        reg_input_mux_out = control_out
         wdata = reg_input_mux_out
 
         nzp_calc_out = nzp_calc(reg_input_mux_out)
@@ -211,7 +211,7 @@ def run_insns(insns, outfile, debug_file):
             pc, 10, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 2, wdata, 64, NZP_WE, nzp_calc_out, 3)
 
         debug_output = '{:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}b}\n'.format(
-            pc, 3, insn, INSN_BIT_WIDTH / 4, REG_FILE[rs], 64, REG_FILE[rt], 64, wdata, 64, nzp_calc_out, 3)
+            pc, 3, insn, INSN_BIT_WIDTH / 4, REG_FILE[rs] & (pow(2, 256) - 1), 64, REG_FILE[rt] & (pow(2, 256) - 1), 64, wdata & (pow(2, 256) - 1), 64, nzp_calc_out, 3)
 
         outfile.write(output)
         debug_file.write(debug_output)
@@ -225,7 +225,7 @@ def run_insns(insns, outfile, debug_file):
 
 
 def branch_logic(is_branch, is_control, nzp_reg_out, insn):
-    opcode = insn & MASK_OP
+    opcode = (insn & MASK_OP) >> 15
     if opcode == 0b00001:
         nzp_t = 0b010
     elif opcode == 0b00010:
