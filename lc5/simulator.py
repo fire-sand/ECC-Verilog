@@ -103,7 +103,7 @@ def decode(insn):
 def nzp_calc(reg_input_mux_out):
     if reg_input_mux_out == 0:
         return 0b010
-    elif reg_input_mux_out < 0:
+    elif reg_input_mux_out.bit_length() == 256 and bin(reg_input_mux_out)[2:][0] == '1':
         return 0b100
     else:
         return 0b001
@@ -181,9 +181,11 @@ def run_insns(insns, outfile, debug_file):
             end = True
 
         elif opcode == INSNS['SDL']:
-            rs_list = list(bin(REG_FILE[rs])[2:])
-            rs_list[-1] = str((REG_FILE[rt] & MASK_OP) >> 255)
-            alu_out = int(''.join(rs_list), 2)
+            # rs_list = list(bin(REG_FILE[rs])[2:])
+            alu_out = (REG_FILE[rs] & (pow(2, 256) - 2)) | ((REG_FILE[rt] & MASK_OP) >> 255)
+            # rs_list[-1] = str()
+            # print rs_list
+            # alu_out = int(''.join(rs_list), 2)
 
         elif opcode == INSNS['CHKH']:
             alu_out = REG_FILE[rs]
@@ -208,7 +210,7 @@ def run_insns(insns, outfile, debug_file):
 
         # Print pc (hex), insn (binary), regfile_we, regfile_reg, regfile_in, nzp_we, nzp_new_bits
         output = '{:0{}x} {:0{}b} {:x} {:0{}x} {:0{}x} {:x} {:0{}b}\n'.format(
-            pc, 10, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 2, wdata, 64, NZP_WE, nzp_calc_out, 3)
+            pc, 3, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 2, wdata, 64, NZP_WE, nzp_calc_out, 3)
 
         debug_output = '{:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}b}\n'.format(
             pc, 3, insn, INSN_BIT_WIDTH / 4, REG_FILE[rs] & (pow(2, 256) - 1), 64, REG_FILE[rt] & (pow(2, 256) - 1), 64, wdata & (pow(2, 256) - 1), 64, nzp_calc_out, 3)
@@ -225,7 +227,7 @@ def run_insns(insns, outfile, debug_file):
 
 
 def branch_logic(is_branch, is_control, nzp_reg_out, insn):
-    opcode = (insn & MASK_OP) >> 15
+    opcode = insn >> 15
     if opcode == 0b00001:
         nzp_t = 0b010
     elif opcode == 0b00010:
@@ -259,7 +261,7 @@ def main():
 
     with open(reghex_file) as f:
         for i, line in enumerate(f):
-            REG_FILE[i + 2] = int(line)
+            REG_FILE[i + 2] = int(line, 16)
 
     infile = open(hex_file, 'r')
     outfile = open(trace_file, 'w')
