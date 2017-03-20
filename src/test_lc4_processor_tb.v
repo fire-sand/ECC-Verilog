@@ -191,7 +191,7 @@ module test_lc4_processor_tb();
          end
 
          next_instruction = 0;  // false
-         while (!next_instruction) begin
+         while (!next_instruction | 1'b1) begin
 
             if (test_stall == 2'd0) begin
                num_exec = num_exec + 1;

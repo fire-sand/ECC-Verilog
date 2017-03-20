@@ -64,7 +64,7 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
       (opcode == 5'b01110) ? // SDRH
           rs >> 1 : // TODO should combine with other >>
       (opcode == 5'b01111) ? // SDRL
-          {rs[0], rt >> 1} :
+          {rs[0], rt[WORD_SIZE-1:1]} :
       (opcode == 5'b10010) ? // SDL
           {rs[WORD_SIZE-1:1], rt[WORD_SIZE-1]} :
 

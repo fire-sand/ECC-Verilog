@@ -126,7 +126,7 @@ module lc4_processor(clk, rst, gwe,
 
    wire carry_reg_in;
    wire carry_reg_out;
-   wire reg_input = (i_cur_insn[19:15] == 5'b01110) ? r1data[0] : !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]);
+   wire reg_input = !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]);
    Nbit_reg #(1) carry_reg (reg_input, carry_reg_out, clk, 1'b1, gwe, rst);
 
    wire[2:0] nzp_out;
@@ -166,7 +166,7 @@ module lc4_processor(clk, rst, gwe,
 `define DEBUG
 `ifdef DEBUG
    always @(posedge gwe) begin
-      $display("%h %h %h %h %h %b", pc, i_cur_insn, r1data, r2data, alu_out, nzp_out);
+      $display("%h %h %h %h %h %b %b", pc, i_cur_insn, r1data, r2data, alu_out, nzp_out, carry_reg_out);
    end
 `endif
 

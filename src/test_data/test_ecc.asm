@@ -62,7 +62,11 @@ JSR POINT_ADD_SR
 SHIFT_N SRL R17, R17, #1
 BRnp ED_LOOP
 ;     return Q
-END_LABEL DONE ; end of prog
+END_LABEL ADD R24, R24, #0
+ADD R25, R25, #0
+ADD R26, R26, #0
+ADD R27, R27, #0
+DONE ; end of prog
 ;; POINT_ADD requirements
 ; R23 <- 2 * d
 ;; pt1
