@@ -177,3 +177,9 @@ test_ecc:
 	python ./lc5/assembler.py ./src/test_data/test_ecc.asm
 	python ./lc5/simulator.py ./src/test_data/test_ecc.hex
 	make all_test > ./src/test_data/test_ecc.debug.output
+
+
+test_point_add:
+	python ./lc5/assembler.py ./src/test_data/point_add.asm
+	python ./lc5/simulator.py ./src/test_data/point_add.hex
+	make all_test > ./src/test_data/point_add.debug.output

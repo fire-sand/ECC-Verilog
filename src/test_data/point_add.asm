@@ -1,72 +1,6 @@
-; (X1, Y1, Z1, T1) = pt1
-; (X2, Y2, Z2, T2) = pt2
-; A = ((Y1-X1)*(Y2-X2)) % q  # 255 bits
-; B = ((Y1+X1)*(Y2+X2)) % q  # 255 bits
-; C = T1*(2*d)*T2 % q  # 255 bits
-; D = Z1*2*Z2 % q  # 255 bits
-; E = (B-A) % q
-; F = (D-C) % q
-; G = (D+C) % q
-; H = (B+A) % q
-; X3 = (E*F) % q
-; Y3 = (G*H) % q
-; T3 = (E*H) % q
-; Z3 = (F*G) % q
-
-; c mod q
-; p = floor(c / 2^255) = c >> 255
-; r = c mod 2^255 = c & 255
-; c mod q = p << 4 + p << 1 + p + r
-
-; Assume points are in order in memory starting at address 0
 
 
-; R7 -- used to store PC for ret
-; Loader will place data in the top 8 register slots. R24-R31
 
-;; Free Registers
-; R16
-
-; def ed(n, pt):
-; R17 <- n Reversed!!! and mod L
-; R18 <- X
-; R19 <- Y
-; R20 <- Z
-; R21 <- T
-; R23 <- 2 * d
-
-;     (X, Y, Z, T) = pt ;This is passed in my loader into R24-R27
-;     Q = (0, 1, 1, 0)  ; Need to set this for POINT_ADD_SR
-ED_SR CONST R24, #0
-CONST R25, #1
-CONST R26, #1
-CONST R27, #0
-;     for i in bin(n)[2:]:
-CHKH R17    ; Check if R17 is 0
-BRz END_LABEL
-;         Q = add_elements(Q, Q)
-ED_LOOP ADD R28, R24, #0
-ADD R29, R25, #0
-ADD R30, R26, #0
-ADD R31, R27, #0
-JSR POINT_ADD_SR
-;         if i == '1':
-AND R0, R17, #1
-BRnz SHIFT_N
-;             Q = add_elements(Q, pt)
-ADD R28, R18, #0
-ADD R29, R19, #0
-ADD R30, R20, #0
-ADD R31, R21, #0
-JSR POINT_ADD_SR
-SHIFT_N SRL R17, R17, #1
-BRnp ED_LOOP
-;     return Q
-END_LABEL ADD R24, R24, #0
-ADD R25, R25, #0
-ADD R26, R26, #0
-ADD R27, R27, #0
-DONE ; end of prog
 ;; POINT_ADD requirements
 ; R23 <- 2 * d
 ;; pt1
@@ -178,7 +112,12 @@ JSR MOD_SR      ; Mod result in R0
 ADD R27, R0, #0 ; T1 <- T3
 
 ADD R7, R22, #0 ; Rest PC of RET
-RTI             ; Return
+
+ADD R24, R24, #0 ; printing for debuging
+ADD R25, R25, #0 ; printing for debuging
+ADD R26, R26, #0 ; printing for debuging
+ADD R27, R27, #0 ; printing for debuging
+DONE            ; Return
 
 
 
