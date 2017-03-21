@@ -3,7 +3,7 @@ zero out top bit after mod insn before or after, somewhere
 positive mods look like they work, check neg
 Signed mult looks like it works
 Wrote a whole simulator...not sure why
-q - ((-d) % q), this is how we should do negative mods, FOR SURE, 160 FTW
+if d is < 0 then q - ((-d) % q), this is how we should do negative mods, FOR SURE, 160 FTW
 Profit?
 
 

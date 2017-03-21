@@ -21,9 +21,9 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    wire [WORD_SIZE-1:0] rt;
    wire [WORD_SIZE-1:0] r_adder;
 
-   assign arith_mux = (opcode == 5'b00101 || opcode == 5'b00110 || opcode == 5'b00111);
-   assign sub_mux = (opcode == 5'b00110); // SUB
-   assign tc_mux = (opcode == 5'b10110); // TCS
+   assign arith_mux = (opcode === 5'b00101 | opcode === 5'b00110 | opcode === 5'b00111); // add or sub or addi
+   assign sub_mux = (opcode === 5'b00110); // SUB
+   assign tc_mux = (opcode === 5'b10100); // TCS
 
    assign rt =
       (opcode == 5'b00111) | // ADDI -- sext(5)
@@ -91,14 +91,14 @@ module adder_module(i_r1data, i_r2data, i_arith_mux, i_sub_mux, i_tc_mux, carry,
    input carry;
    output [WORD_SIZE-1:0] o_adder;
 
-   wire [WORD_SIZE-1:0] r1tc = ~i_r1data + 1;
-   wire [WORD_SIZE-1:0] r2tc = ~i_r2data + 1;
+   wire [WORD_SIZE-1:0] r1tc = (~i_r1data) + 1;
+   wire [WORD_SIZE-1:0] r2tc = (~i_r2data) + 1;
 
    wire [WORD_SIZE-1:0] adder_in = (i_sub_mux) ? r2tc : i_r2data;
 
    assign o_adder =
       (i_arith_mux) ? (i_r1data + adder_in) :
-      (i_tc_mux | carry) ? r1tc :
-         i_r1data;
+      (i_tc_mux) ? r1tc : // TCS
+      (carry) ?  r1tc : ~i_r1data; // TCDH
 
 endmodule
