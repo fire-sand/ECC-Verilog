@@ -9,7 +9,8 @@
 
 
 //`define TEST_CASE "test_ecc"
-`define TEST_CASE "mult"
+//`define TEST_CASE "mult"
+`define TEST_CASE "mod"
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE */
 

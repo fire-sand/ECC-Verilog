@@ -1,3 +1,13 @@
+3/20
+zero out top bit after mod insn before or after, somewhere
+positive mods look like they work, check neg
+Signed mult looks like it works
+Wrote a whole simulator...not sure why
+q - ((-d) % q), this is how we should do negative mods, FOR SURE, 160 FTW
+Profit?
+
+
+
 1. Write assembly for ECC
 2. Edit assembly to support signed multiplicaiton, and 255 bit split
 - Change check to use R1 after adding mux
@@ -12,12 +22,6 @@
 
 Things we talked about:
 - To keep 255 bits in each register at the end of mult subroutine, keep MSB of RT in our single bit reg, unless we just issued an SDRH insn, then we should keep LSB of RS in our single bit reg. This one bit is then used by SDL and SDRL respectively
-
-
-
-
-
-
 
 
 

@@ -165,8 +165,15 @@ update_site:
 
 test_mult:
 	python ./lc5/assembler.py ./src/test_data/mult.asm
-	make > temp && vim temp
+	python ./lc5/simulator.py ./src/test_data/mult.hex
+	make all_test > ./src/test_data/mult.debug.output && vim ./src/test_data/mult.debug.output
+
+test_mod:
+	python ./lc5/assembler.py ./src/test_data/mod.asm
+	python ./lc5/simulator.py ./src/test_data/mod.hex
+	make all_test > ./src/test_data/mod.debug.output && vim ./src/test_data/mod.debug.output
 
 test_ecc:
 	python ./lc5/assembler.py ./src/test_data/test_ecc.asm
-	make > temp && vim temp
+	python ./lc5/simulator.py ./src/test_data/test_ecc.hex
+	make all_test > ./src/test_data/test_ecc.debug.output && vim ./src/test_data/test_ecc.debug.output
