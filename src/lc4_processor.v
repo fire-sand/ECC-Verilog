@@ -244,4 +244,3 @@ module branch_mux (branch_out, alu_mux_out, pc_plus_one, branch_mux_out);
 
     assign branch_mux_out = (branch_out == 1'b0) ? pc_plus_one : alu_mux_out;
 endmodule
-
