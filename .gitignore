@@ -3,5 +3,6 @@ outputs/*
 *.output
 *.trace
 src/include/set_testcase.v
+!*.reg.hex
 *.hex
 *.chex
