@@ -4,7 +4,9 @@ ADD R1, R3, #0 ;
 ; Mod Step
 TCS R2
 TCDH R1
-MOD_SR SLL R0, R1, #4  ; R5 <- p << 4
+MOD_SR SLL R2, #1   
+SRL R2, #1 ; ^ and this clear out top bit
+SLL R0, R1, #4  ; R5 <- p << 4
 SLL R6, R1, #1  ; R6 <- p << 1
 ADD R0, R0, R6  ; R0 <- p << 4 + p << 1
 ADD R3, R1, #0  ; R3 <- R1
