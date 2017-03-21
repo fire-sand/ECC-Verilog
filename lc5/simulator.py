@@ -191,7 +191,8 @@ def run_insns(insns, outfile, debug_file):
             alu_out = REG_FILE[rs]
 
         elif opcode == INSNS['TCS']:
-            alu_out = (~REG_FILE[rs] & (pow(2, 255) - 1)) + 1
+            # alu_out = (~REG_FILE[rs] & (pow(2, 255) - 1)) + 1
+            alu_out = ~REG_FILE[rs] + 1
             carry = int(REG_FILE[rs] == 0)
 
         elif opcode == INSNS['TCDH']:
