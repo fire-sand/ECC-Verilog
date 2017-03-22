@@ -49,7 +49,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'SDL',
     'CHKH',
     'TCS',
-    'TCDH'
+    'TCDH',
+    'ADDc'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -75,7 +76,8 @@ def decode(insn):
             opcode == 0b10010 or # SDL
             opcode == 0b10011 or # CHKH
             opcode == 0b10100 or # TCS
-            opcode == 0b10101)   # TCDH
+            opcode == 0b10101 or # TCDH
+            opcode == 0b10110)   # ADDc
 
 
     R2_SEL = insn & MASK_RT
@@ -143,6 +145,8 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['ADD']:
             alu_out = REG_FILE[rs] + REG_FILE[rt]
+            carry = alu_out >> 256
+            alu_out &= (pow(2, 255) - 1)
 
         elif opcode == INSNS['SUB']:
             alu_out = REG_FILE[rs] - REG_FILE[rt]
@@ -163,6 +167,11 @@ def run_insns(insns, outfile, debug_file):
             alu_out = REG_FILE[rs] << uimm4
 
         elif opcode == INSNS['SRL']:
+            if uimm4 == 15:
+                uimm4 = 255
+            else uimm4 == 14:
+                uimm4 = 252
+
             alu_out = (REG_FILE[rs] & (pow(2, 256) - 1)) >> uimm4
 
         elif opcode == INSNS['SDRH']:
@@ -197,6 +206,9 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['TCDH']:
             alu_out = ~REG_FILE[rs] + carry
+
+        elif opcode == INSNS['ADDc']:
+            alu_out = REG_FILE[rs] + carry
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out

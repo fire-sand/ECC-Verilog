@@ -30,7 +30,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'SDL',
     'CHKH',
     'TCS',
-    'TCDH'
+    'TCDH',
+    'ADDc'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -44,11 +45,11 @@ THREE_REG_INSNS = {INSNS[insn] for insn in {
 }}
 
 TWO_REG_INSNS = {INSNS[insn] for insn in {
-    'TCS', 'TCDH'
+    'ADDc'
 }}
 
 ONE_REG_INSNS = {INSNS[insn] for insn in {
-    'CHKL', 'CHKH'
+    'TCS', 'TCDH', 'CHKL', 'CHKH'
 }}
 
 
@@ -146,7 +147,7 @@ def parse_instruction(pc, line_num, words, labels):
             print REG_MISSING.format(line_num, reg='Rd', line=line)
             sys.exit(1)
         try:
-            rs = words[1]
+            rs = words[2]
         except Exception as e:
             print REG_MISSING.format(line_num, reg='Rs', line=line)
             sys.exit(1)
