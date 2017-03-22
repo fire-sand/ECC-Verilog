@@ -166,7 +166,7 @@ def run_insns(insns, outfile, debug_file):
             alu_out = imm9
 
         elif opcode == INSNS['SLL']:
-            alu_out = REG_FILE[rs] << uimm4
+            alu_out = (REG_FILE[rs] << uimm4) & (pow(2, 256) - 1)
 
         elif opcode == INSNS['SRL']:
             if uimm4 == 15:
@@ -205,12 +205,14 @@ def run_insns(insns, outfile, debug_file):
             # alu_out = (~REG_FILE[rs] & (pow(2, 255) - 1)) + 1
             alu_out = ~REG_FILE[rs] + 1
             carry = int(REG_FILE[rs] == 0)
+            print "hi"
 
         elif opcode == INSNS['TCDH']:
             alu_out = ~REG_FILE[rs] + carry
 
         elif opcode == INSNS['ADDc']:
             alu_out = REG_FILE[rs] + carry
+            print "carry", carry
 
         elif opcode == INSNS['SCAR']:
             carry_store ^= carry

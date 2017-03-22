@@ -183,3 +183,8 @@ test_point_add:
 	python ./lc5/assembler.py ./src/test_data/point_add.asm
 	python ./lc5/simulator.py ./src/test_data/point_add.hex
 	make all_test > ./src/test_data/point_add.debug.output
+
+test_mod_carry:
+	python ./lc5/assembler.py ./src/test_data/mod_carry.asm
+	python ./lc5/simulator.py ./src/test_data/mod_carry.hex
+	make all_test > ./src/test_data/mod_carry.debug.output

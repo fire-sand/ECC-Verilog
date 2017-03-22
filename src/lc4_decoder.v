@@ -48,7 +48,8 @@ module lc4_decoder(insn,
                  opcode == 5'b10010 | // SDL
                  opcode == 5'b10011 | // CHKH
                  opcode == 5'b10100 | // TCS
-                 opcode == 5'b10101 ; // TCDH
+                 opcode == 5'b10101 | // TCDH
+                 opcode == 5'b10110 ; // ADDc
 
 
 

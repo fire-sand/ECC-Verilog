@@ -5,8 +5,8 @@ BRzp LBL_MOD
 TCS R2
 TCDH R1
 CONST R5, #1  ; need to set flag to invert at the end, only one was neg
-
-LBL_MOD SLL R2, R2, #1
+LBL_MOD SDL R1, R1, R2 ; split into 257 and 255
+SLL R2, R2, #1
 SRL R2, R2, #1 ; ^ and this clear out top bit
 
 CONST R3, #0
@@ -18,11 +18,11 @@ SLL R1, R0, #4   ; R1 <- p[WORD_SIZE-5:0]
 ADD R4, R1, R4   ; {carry, R4} <- R4 + p[WORD_SIZE-5:0]
 ADDc R3, R3      ; R3 = R3 + carry
 SLL R1, R0, #1   ; R1 <- p[WORD_SIZE-2:0]
-ADD R4, R1, R3   ; {carry, R4} <- R4 + p[WORD_SIZE-1:0]
+ADD R4, R1, R4   ; {carry, R4} <- R4 + p[WORD_SIZE-1:0]
 ADDc R3, R3      ; R3 = R3 + carry
-SRL R1, R0, #252 ; R1 = p[WORD_SIZE-2:WORD_SIZE-5]
+SRL R1, R0, #14 ; R1 = p[WORD_SIZE-2:WORD_SIZE-5]
 ADD R3, R1, R3   ; R3 = R3 + p[WORD_SIZE-2:WORD_SIZE-5]
-SRL R1, R0, #255 ; R1 = p[WORD_SIZE-2]
+SRL R1, R0, #15 ; R1 = p[WORD_SIZE-2]
 ADD R3, R1, R3   ; R3 = R3 + p[WORD_SIZE-2]
 
 ;SLL R6, R1, #1   ; R6 <- p[WORD_SIZE-2:0]

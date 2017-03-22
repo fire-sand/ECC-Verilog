@@ -15,25 +15,25 @@
 ; R31 <- T2
 
 ; R8 <- A = ((Y1-X1)*(Y2-X2)) % q
-POINT_ADD_SR ADD R0, R25, #0 ; R0 <- Y1, Need to do this move because of Proc
-ADD R22, R7, #0 ; Save PC of RET
-SUB R2, R0, R24 ; R2 <- Y1 - X1
-ADD R0, R29, #0 ; R0 <- Y2, Need to do this because of Proc
-SUB R3, R0, R28 ; R3 <- Y2 - X2
-JSR MULT_SR     ; Mult result in R1, R2
-JSR MOD_SR      ; Mod result in R0
-ADD R8, R0, #0  ; R8 <- A
-;
-;
-; ; R9 <- B = ((Y1+X1)*(Y2+X2)) % q
-; ADD R0, R25, #0 ; R0 <- Y1, Need to do this move because of Proc
-; ADD R2, R0, R24 ; R2 <- Y1 - X1
+; POINT_ADD_SR ADD R0, R25, #0 ; R0 <- Y1, Need to do this move because of Proc
+; ADD R22, R7, #0 ; Save PC of RET
+; SUB R2, R0, R24 ; R2 <- Y1 - X1
 ; ADD R0, R29, #0 ; R0 <- Y2, Need to do this because of Proc
-; ADD R3, R0, R28 ; R3 <- Y2 - X2
+; SUB R3, R0, R28 ; R3 <- Y2 - X2
 ; JSR MULT_SR     ; Mult result in R1, R2
 ; JSR MOD_SR      ; Mod result in R0
-; ADD R9, R0, #0  ; R9 <- B
+; ADD R8, R0, #0  ; R8 <- A
 ;
+;
+; R9 <- B = ((Y1+X1)*(Y2+X2)) % q
+ADD R0, R25, #0 ; R0 <- Y1, Need to do this move because of Proc
+ADD R2, R0, R24 ; R2 <- Y1 + X1
+ADD R0, R29, #0 ; R0 <- Y2, Need to do this because of Proc
+ADD R3, R0, R28 ; R3 <- Y2 + X2
+JSR MULT_SR     ; Mult result in R1, R2
+JSR MOD_SR      ; Mod result in R0
+ADD R9, R0, #0  ; R9 <- B
+
 ; ; C = T1*(2*d)*T2 % q  # 255 bits
 ; ADD R2, R27, #0 ; R2 <- T1
 ; ADD R3, R23, #0 ; R3 <- 2*d
@@ -163,7 +163,6 @@ LBL_F SDRL R2, R1, R2   ; Shift A_Q right
 SDRH R1, R1, R2         ; Shift A_Q right
 ADD R0, R0, #-1         ; N <- N - 1
 BRnp CHECK_SR           ; N == 0?
-SDL R1, R1, R2          ; split into {257,255}
 CHKL R6                 ; is R0 0 or 1
 BRz LBL_END_MULT
 TCS R2                  ; R2 is low bits
@@ -171,23 +170,40 @@ TCDH R1                 ; R1 is high bits
 LBL_END_MULT RTI        ; Return
 
 
-; Mod Step
+;; module epxects inputs in r2 and r3, need to move r1 <- r2
+ADD R1, R3, #0 ; only because of test bench
 MOD_SR CHKH R1               ; R1 zp
 BRzp LBL_MOD
 TCS R2
 TCDH R1
-CONST R4, #1  ; need to set flag to invert at the end, only one was neg
-LBL_MOD SLL R2, R2, #1
+CONST R5, #1  ; need to set flag to invert at the end, only one was neg
+LBL_MOD SDL R1, R1, R2 ; split into 257 and 255
+SLL R2, R2, #1
 SRL R2, R2, #1 ; ^ and this clear out top bit
-SLL R0, R1, #4  ; R5 <- p << 4
-SLL R6, R1, #1  ; R6 <- p << 1
-ADD R0, R0, R6  ; R0 <- p << 4 + p << 1
-ADD R3, R1, #0  ; R3 <- R1
-ADD R0, R0, R3  ; R5 <- p << 4 + p << 1 + p
-ADD R0, R0, R2  ; R5 <- p << 4 + p << 1 + p + r
-CHKL R4                 ; is R0 0 or 1
+
+CONST R3, #0
+ADD R0, R1, #0   ; R0 <- p
+ADD R4, R1, #0   ; R4 <- p
+ADD R4, R1, R2   ; {carry, R4} <- p + r
+ADDc R3, R3      ; R3 = R3 + carry
+SLL R1, R0, #4   ; R1 <- p[WORD_SIZE-5:0]
+ADD R4, R1, R4   ; {carry, R4} <- R4 + p[WORD_SIZE-5:0]
+ADDc R3, R3      ; R3 = R3 + carry
+SLL R1, R0, #1   ; R1 <- p[WORD_SIZE-2:0]
+ADD R4, R1, R4   ; {carry, R4} <- R4 + p[WORD_SIZE-1:0]
+ADDc R3, R3      ; R3 = R3 + carry
+SRL R1, R0, #14 ; R1 = p[WORD_SIZE-2:WORD_SIZE-5]
+ADD R3, R1, R3   ; R3 = R3 + p[WORD_SIZE-2:WORD_SIZE-5]
+SRL R1, R0, #15 ; R1 = p[WORD_SIZE-2]
+ADD R3, R1, R3   ; R3 = R3 + p[WORD_SIZE-2]
+ADD R2, R4, #0   ; R2 = R4
+ADD R1, R3, #0   ; R1 = R3
+BRnp MOD_SR      ; If top bits aren't empty, then need to run mod again
+ADD R0, R2, #0   ; Move result into R0
+CHKL R5                 ; is R0 0 or 1
 BRz LBL_END_MOD
 ADD R2, R0, #0
 ADD R1, R16, #0
 SUB R0, R1, R2
-LBL_END_MOD RTI ; Result placed in R0
+
+LBL_END_MOD RTI  ; Result placed in R0 TODO need to add signed and 255 bit split
