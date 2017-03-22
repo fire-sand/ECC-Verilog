@@ -51,7 +51,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCS',
     'TCDH',
     'ADDc',
-    'SCAR'
+    'SCAR',
+    'GCAR'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -94,7 +95,7 @@ def decode(insn):
 
     WSEL = 7 if opcode == 0b01000 else ((insn & MASK_RD) >> 10)
 
-    NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000
+    NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000 or opcode == INSNS['GCAR'] or opcode == INSNS['SCAR']
 
     REGFILE_WE = NZP_WE and (opcode != 0b10000 and opcode != 0b10011)
 
@@ -216,6 +217,7 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['SCAR']:
             carry_store ^= carry
+            alu_out = carry_store
 
         elif opcode == INSNS['GCAR']:
             alu_out = carry_store

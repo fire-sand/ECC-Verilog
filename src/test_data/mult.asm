@@ -32,7 +32,6 @@ SDRH R1, R1, R2         ; Shift A_Q right
 
 ADD R0, R0, #-1         ; N <- N - 1
 BRnp CHECK_SR           ; N == 0?
-SDL R1, R1, R2          ; split into {257,255}
 GCAR                    ; is R0 0 or 1
 BRz LBL_END_MULT
 TCS R2                  ; R2 is low bits
