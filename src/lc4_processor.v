@@ -100,7 +100,7 @@ module lc4_processor(clk, rst, gwe,
    assign r1_in = (r1sel === 5'b0 | r1sel === 5'b1) ? r1data : r2data;
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
-      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2data, carry_reg_out, alu_out);
+      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2data, carry_reg_out, carry_alu_out, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;
@@ -126,7 +126,8 @@ module lc4_processor(clk, rst, gwe,
 
    wire carry_reg_in;
    wire carry_reg_out;
-   wire reg_input = !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]);
+   wire carry_alu_out;
+   wire reg_input = (i_cur_insn[19:15] === 5'b10100) ? !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]) : carry_alu_out;
    Nbit_reg #(1) carry_reg (reg_input, carry_reg_out, clk, 1'b1, gwe, rst);
 
    wire[2:0] nzp_out;
