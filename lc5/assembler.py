@@ -32,7 +32,6 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCS',
     'TCDH',
     'ADDc',
-    'SCAR',
     'GCAR'
 ])}
 
@@ -135,8 +134,9 @@ def parse_instruction(pc, line_num, words, labels):
             assert -IMM5_MAX <= rt < IMM5_MAX, ERR.format(line_num, err='imm5 must be in the range [{}, {}]'.format(-IMM5_MAX, IMM5_MAX-1))
             rt &= pow(2, 5) - 1
         else:
-            assert rs in REG_LO_RANGE, ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_LO_RANGE[-1]))
-            assert rt in REG_HI_RANGE, ERR.format(line_num, err='Rt must be in the range [{}, {}]'.format(REG_HI_RANGE[0], REG_HI_RANGE[-1]))
+            # assert rs in REG_LO_RANGE, ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_LO_RANGE[-1]))
+            # assert rt in REG_HI_RANGE, ERR.format(line_num, err='Rt must be in the range [{}, {}]'.format(REG_HI_RANGE[0], REG_HI_RANGE[-1]))
+            pass
 
         ret = (opcode << 15) | (rd << 10) | (rs << 5) | rt
 
@@ -208,6 +208,22 @@ def parse_instruction(pc, line_num, words, labels):
         imm &= pow(2, 9) - 1
 
         ret = (opcode << 15) | (rd << 10) | imm
+
+    elif opcode == INSNS['GCAR']:
+        # Get register values with error handling
+        try:
+            rs = words[1]
+        except Exception as e:
+            print REG_MISSING.format(line_num, reg='Rs', line=line)
+            sys.exit(1)
+
+        # Make sure registers are valid
+        assert rs.startswith('R'), REG_INVALID.format(line_num, reg='Rs', reg_val=rs)
+
+        rs = int(rs[1:])
+        assert rs in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
+
+        ret = (opcode << 15) | (rs << 10)
 
     else:
         ret = opcode << 15

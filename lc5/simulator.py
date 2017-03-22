@@ -94,7 +94,7 @@ def decode(insn):
 
     WSEL = 7 if opcode == 0b01000 else ((insn & MASK_RD) >> 10)
 
-    NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000 or opcode == INSNS['GCAR'] or opcode == INSNS['SCAR']
+    NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000 or opcode == INSNS['GCAR']
 
     REGFILE_WE = NZP_WE and (opcode != 0b10000 and opcode != 0b10011)
 
@@ -205,14 +205,12 @@ def run_insns(insns, outfile, debug_file):
             # alu_out = (~REG_FILE[rs] & (pow(2, 255) - 1)) + 1
             alu_out = ~REG_FILE[rs] + 1
             carry = int(REG_FILE[rs] == 0)
-            print "hi"
 
         elif opcode == INSNS['TCDH']:
             alu_out = ~REG_FILE[rs] + carry
 
         elif opcode == INSNS['ADDc']:
             alu_out = REG_FILE[rs] + carry
-            print "carry", carry
 
         elif opcode == INSNS['GCAR']:
             alu_out = carry

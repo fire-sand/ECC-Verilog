@@ -24,16 +24,20 @@ LBL_R2N CONST R6, #1  ; need to set flag to invert at the end, only one was neg
 ; Do the actual Multiplication
 LBL_MULT CONST R0, #255
 ADD R0, R0, #1          ; N = 256
+ADD R1, R1, #0
+ADD R2, R2, #0
 CONST R1, #0            ; A = 0;
-CHECK_SR CHKL R2        ; Check lowest bit of Q
+CHECK_SR CONST R4, #0
+CHKL R2        ; Check lowest bit of Q
 BRz LBL_F               ; Yes/No
 ADD R1, R1, R3          ; A <- A + B
+GCAR R4
 LBL_F SDRL R2, R1, R2   ; Shift A_Q right
-SDRH R1, R1, R2         ; Shift A_Q right
-
+SDRL R1, R4, R1         ; Shift A_Q right
 ADD R0, R0, #-1         ; N <- N - 1
 BRnp CHECK_SR           ; N == 0?
-CHKH R6                    ; is R0 0 or 1
+
+CHKH R6                 ; is R0 0 or 1
 BRz LBL_END_MULT
 TCS R2                  ; R2 is low bits
 TCDH R1                 ; R1 is high bits
