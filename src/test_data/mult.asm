@@ -6,20 +6,21 @@
 MULT_SR CONST R6, #0  ; R6 <- 0, Both P or Both N
 ADD R0, R30, #0
 ADD R2, R0, R31
-SCAR
+GCAR R4
 ADD R3, R0, R31
-SCAR
-GCAR                  ; R2 zp
-BRzp LBL_R3           ; if r2 is 0 or pos then branch
+GCAR R5
+CHKH R4                  ; R2 zp
+BRz LBL_R3           ; if r2 is 0 or pos then branch
 TCS R2, R2            ; R2 is negative so invert
-CHKH R3               ; is R3 0 or pos
-BRzp LBL_R2N          ; if R3 is 0 or pos then branch
+CHKH R5               ; is R3 0 or pos
+BRz LBL_R2N          ; if R3 is 0 then branch
 TCS R3, R3            ; R3 is negative so invert
 BRzp LBL_MULT         ; flipped both so can go straight to mult
-LBL_R3 CHKH R3        ; R2 is pos, need to check R3
-BRzp LBL_MULT         ; if r3 is also pos or 0
+LBL_R3 CHKH R5        ; R2 is 0 or pos, need to check R3
+BRz LBL_MULT         ; if r3 is also 0 or pos
 TCS R3, R3            ; r3 is negative so invert
 LBL_R2N CONST R6, #1  ; need to set flag to invert at the end, only one was neg
+
 ; Do the actual Multiplication
 LBL_MULT CONST R0, #255
 ADD R0, R0, #1          ; N = 256
@@ -32,7 +33,7 @@ SDRH R1, R1, R2         ; Shift A_Q right
 
 ADD R0, R0, #-1         ; N <- N - 1
 BRnp CHECK_SR           ; N == 0?
-GCAR                    ; is R0 0 or 1
+CHKH R6                    ; is R0 0 or 1
 BRz LBL_END_MULT
 TCS R2                  ; R2 is low bits
 TCDH R1                 ; R1 is high bits

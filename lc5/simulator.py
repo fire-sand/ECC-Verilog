@@ -51,7 +51,6 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCS',
     'TCDH',
     'ADDc',
-    'SCAR',
     'GCAR'
 ])}
 
@@ -215,12 +214,8 @@ def run_insns(insns, outfile, debug_file):
             alu_out = REG_FILE[rs] + carry
             print "carry", carry
 
-        elif opcode == INSNS['SCAR']:
-            carry_store ^= carry
-            alu_out = carry_store
-
         elif opcode == INSNS['GCAR']:
-            alu_out = carry_store
+            alu_out = carry
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out
