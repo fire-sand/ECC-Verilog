@@ -351,4 +351,3 @@ module test_lc4_processor_tb();
    end // initial begin
 
 endmodule
-

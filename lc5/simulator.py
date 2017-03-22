@@ -191,7 +191,7 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['SDL']:
             # rs_list = list(bin(REG_FILE[rs])[2:])
-            alu_out = (REG_FILE[rs] & (pow(2, 256) - 2)) | ((REG_FILE[rt] & (pow(2, 256) - 1)) >> 255)
+            alu_out = ((REG_FILE[rs] & (pow(2, 256) - 2)) << 1) | ((REG_FILE[rt] & (pow(2, 256) - 1)) >> 255)
             # rs_list[-1] = str()
             # print rs_list
             # alu_out = int(''.join(rs_list), 2)

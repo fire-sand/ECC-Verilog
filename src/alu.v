@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 
-module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
+module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, carry_out, o_result);
    parameter WORD_SIZE = 256;
    parameter DADDR = 4;
    parameter INSN = 19;
@@ -11,17 +11,20 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
    input [IADDR:0] i_pc;
    input [WORD_SIZE-1:0] i_r1data, i_r2data;
    input carry;
+   output carry_out;
    output [WORD_SIZE-1:0] o_result;
 
    wire [4:0]   opcode = i_insn[19:15];
-   wire arith_mux;
+   wire [1:0] arith_mux;
    wire sub_mux;
    wire tc_mux;
    wire [WORD_SIZE-1:0] rs = i_r1data;
    wire [WORD_SIZE-1:0] rt;
    wire [WORD_SIZE-1:0] r_adder;
 
-   assign arith_mux = (opcode === 5'b00101 | opcode === 5'b00110 | opcode === 5'b00111); // add or sub or addi
+   assign arith_mux = (opcode === 5'b10100) ? 2'b11 :
+      (opcode === 5'b00101 | opcode === 5'b00110 | opcode === 5'b00111) ? 2'b1 :
+      2'b0; // add or sub or addi
    assign sub_mux = (opcode === 5'b00110); // SUB
    assign tc_mux = (opcode === 5'b10100); // TCS
 
@@ -31,7 +34,7 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
           {{(WORD_SIZE-5){i_insn[4]}}, i_insn[4:0]} : i_r2data;
 
    adder_module #(.WORD_SIZE(WORD_SIZE))
-      adder(rs, rt, arith_mux, sub_mux, tc_mux, carry, r_adder);
+      adder(rs, rt, arith_mux, sub_mux, tc_mux, carry, carry_out, r_adder);
    wire [IADDR:0] next_pc = i_pc + {{2{i_insn[8]}}, i_insn[8:0]};
 
    assign o_result =
@@ -60,13 +63,15 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
       (opcode == 5'b01100) ? // SLL
           rs << i_insn[3:0] : // TODO should combine with other >>
       (opcode == 5'b01101) ? // SRL
-          rs >> i_insn[3:0] :
+          rs >> (i_insn[3:0] == 4'd15) ? 255 :
+                (i_insn[3:0] == 4'd14) ? 252 :
+                i_insn[3:0] :
       (opcode == 5'b01110) ? // SDRH
           rs >> 1 : // TODO should combine with other >>
       (opcode == 5'b01111) ? // SDRL
           {rs[0], rt[WORD_SIZE-1:1]} :
       (opcode == 5'b10010) ? // SDL
-          {rs[WORD_SIZE-1:1], rt[WORD_SIZE-1]} :
+          {rs[WORD_SIZE-2:0], rt[WORD_SIZE-1]} :
 
       (opcode == 5'b10000) ? // CHKL
           {WORD_SIZE{rs[0]}} :
@@ -81,14 +86,16 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry, o_result);
 
 endmodule
 
-module adder_module(i_r1data, i_r2data, i_arith_mux, i_sub_mux, i_tc_mux, carry, o_adder);
+module adder_module(i_r1data, i_r2data, i_arith_mux, i_sub_mux, i_tc_mux, carry,carry_out, o_adder);
    parameter WORD_SIZE = 64;
    input [WORD_SIZE-1:0] i_r1data;
    input [WORD_SIZE-1:0] i_r2data;
-   input i_arith_mux; // Arith or TC
+   input [1:0] i_arith_mux; // Arith or TC or ADDC
    input i_sub_mux; // SUB or ADD
    input i_tc_mux; // TCS or TCDH
    input carry;
+   output carry_out;
+   output [WORD_SIZE:0] adder;
    output [WORD_SIZE-1:0] o_adder;
 
    wire [WORD_SIZE-1:0] r1tc = (~i_r1data) + 1;
@@ -96,9 +103,11 @@ module adder_module(i_r1data, i_r2data, i_arith_mux, i_sub_mux, i_tc_mux, carry,
 
    wire [WORD_SIZE-1:0] adder_in = (i_sub_mux) ? r2tc : i_r2data;
 
-   assign o_adder =
-      (i_arith_mux) ? (i_r1data + adder_in) :
+   assign adder =
+      (i_arith_mux === 2'b10) ? i_r1data + carry :
+      (i_arith_mux === 2'b1) ? (i_r1data + adder_in) :
       (i_tc_mux) ? r1tc : // TCS
       (carry) ?  r1tc : ~i_r1data; // TCDH
-
+  assign carry_out = adder[WORD_SIZE];
+  assign o_adder = adder[WORD_SIZE-1:0];
 endmodule

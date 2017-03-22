@@ -8,9 +8,10 @@
 //`define CODE_PATH "/home/satya/School/ese450/RSA-CPU_private/lc4/"
 
 
-`define TEST_CASE "test_ecc"
+//`define TEST_CASE "test_ecc"
 //`define TEST_CASE "mult"
 //`define TEST_CASE "mod"
+`define TEST_CASE "point_add"
 
 /* DO NOT MODIFY ANYTHING BELOW THIS LINE */
 
