@@ -50,7 +50,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'CHKH',
     'TCS',
     'TCDH',
-    'ADDc'
+    'ADDc',
+    'SCAR'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -119,6 +120,7 @@ def sign_extend(value, bits):
 def run_insns(insns, outfile, debug_file):
     pc = 0
     carry = 0
+    carry_store = 0
     iters = 0
     NZP = 0
     end = False
@@ -146,7 +148,7 @@ def run_insns(insns, outfile, debug_file):
         elif opcode == INSNS['ADD']:
             alu_out = REG_FILE[rs] + REG_FILE[rt]
             carry = alu_out >> 256
-            alu_out &= (pow(2, 255) - 1)
+            alu_out &= (pow(2, 256) - 1)
 
         elif opcode == INSNS['SUB']:
             alu_out = REG_FILE[rs] - REG_FILE[rt]
@@ -169,7 +171,7 @@ def run_insns(insns, outfile, debug_file):
         elif opcode == INSNS['SRL']:
             if uimm4 == 15:
                 uimm4 = 255
-            else uimm4 == 14:
+            elif uimm4 == 14:
                 uimm4 = 252
 
             alu_out = (REG_FILE[rs] & (pow(2, 256) - 1)) >> uimm4
@@ -191,7 +193,7 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['SDL']:
             # rs_list = list(bin(REG_FILE[rs])[2:])
-            alu_out = ((REG_FILE[rs] & (pow(2, 256) - 2)) << 1) | ((REG_FILE[rt] & (pow(2, 256) - 1)) >> 255)
+            alu_out = ((REG_FILE[rs] << 1) & (pow(2, 256) - 1)) | ((REG_FILE[rt] & (pow(2, 256) - 1)) >> 255)
             # rs_list[-1] = str()
             # print rs_list
             # alu_out = int(''.join(rs_list), 2)
@@ -209,6 +211,12 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['ADDc']:
             alu_out = REG_FILE[rs] + carry
+
+        elif opcode == INSNS['SCAR']:
+            carry_store ^= carry
+
+        elif opcode == INSNS['GCAR']:
+            alu_out = carry_store
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out

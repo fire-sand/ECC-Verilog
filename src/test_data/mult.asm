@@ -4,9 +4,12 @@
 ;; reference:
 
 MULT_SR CONST R6, #0  ; R6 <- 0, Both P or Both N
-ADD R2, R2, #0
-ADD R3, R3, #0
-CHKH R2               ; R2 zp
+ADD R0, R30, #0
+ADD R2, R0, R31
+SCAR
+ADD R3, R0, R31
+SCAR
+GCAR                  ; R2 zp
 BRzp LBL_R3           ; if r2 is 0 or pos then branch
 TCS R2, R2            ; R2 is negative so invert
 CHKH R3               ; is R3 0 or pos
@@ -30,7 +33,7 @@ SDRH R1, R1, R2         ; Shift A_Q right
 ADD R0, R0, #-1         ; N <- N - 1
 BRnp CHECK_SR           ; N == 0?
 SDL R1, R1, R2          ; split into {257,255}
-CHKL R6                 ; is R0 0 or 1
+GCAR                    ; is R0 0 or 1
 BRz LBL_END_MULT
 TCS R2                  ; R2 is low bits
 TCDH R1                 ; R1 is high bits
