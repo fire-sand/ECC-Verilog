@@ -180,7 +180,7 @@ def parse_instruction(pc, line_num, words, labels):
         rs = int(rs[1:])
         assert rs in (REG_LO_RANGE + REG_HI_RANGE), ERR.format(line_num, err='Rs must be in the range [{}, {}]'.format(REG_LO_RANGE[0], REG_HI_RANGE[-1]))
 
-        ret = (opcode << 15) | (rs << 5)
+        ret = (opcode << 15) | (rs << 10) | (rs << 5)
 
     elif opcode == INSNS['CONST']:
 

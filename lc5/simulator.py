@@ -152,7 +152,12 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['SUB']:
             alu_out = REG_FILE[rs] - REG_FILE[rt]
-
+            if (alu_out < 0):
+                carry = 1
+            else:
+                carry = 0
+            alu_out &= (pow(2, 256) - 1)
+            print 'alu_out: ', hex(alu_out)
         elif opcode == INSNS['ADDi']:
             alu_out = REG_FILE[rs] + imm5
 
@@ -199,15 +204,18 @@ def run_insns(insns, outfile, debug_file):
             # alu_out = int(''.join(rs_list), 2)
 
         elif opcode == INSNS['CHKH']:
+            print hex(pc), rs, hex(REG_FILE[rs])
             alu_out = REG_FILE[rs]
 
         elif opcode == INSNS['TCS']:
             # alu_out = (~REG_FILE[rs] & (pow(2, 255) - 1)) + 1
             alu_out = ~REG_FILE[rs] + 1
             carry = int(REG_FILE[rs] == 0)
+            assert rd == rs and REGFILE_WE
 
         elif opcode == INSNS['TCDH']:
             alu_out = ~REG_FILE[rs] + carry
+            assert rd == rs and REGFILE_WE
 
         elif opcode == INSNS['ADDc']:
             alu_out = REG_FILE[rs] + carry

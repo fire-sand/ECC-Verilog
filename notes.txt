@@ -1,3 +1,10 @@
+3/26
+Add gchar to Verilog
+
+
+
+
+
 3/20
 zero out top bit after mod insn before or after, somewhere
 positive mods look like they work, check neg

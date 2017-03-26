@@ -95,7 +95,7 @@ module adder_module(i_r1data, i_r2data, i_arith_mux, i_sub_mux, i_tc_mux, carry,
    input i_tc_mux; // TCS or TCDH
    input carry;
    output carry_out;
-   output [WORD_SIZE:0] adder;
+   wire [WORD_SIZE:0] adder;
    output [WORD_SIZE-1:0] o_adder;
 
    wire [WORD_SIZE-1:0] r1tc = (~i_r1data) + 1;
