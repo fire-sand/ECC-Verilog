@@ -33,7 +33,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCDH',
     'ADDc',
     'GCAR',
-    'DEC'
+    'DEC',
+    'SFL'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -51,7 +52,7 @@ TWO_REG_INSNS = {INSNS[insn] for insn in {
 }}
 
 ONE_REG_INSNS = {INSNS[insn] for insn in {
-    'TCS', 'TCDH', 'CHKL', 'CHKH'
+    'TCS', 'TCDH', 'CHKL', 'CHKH', 'SFL'
 }}
 
 

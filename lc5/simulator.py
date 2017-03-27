@@ -8,6 +8,7 @@ NUM_ITERS = 10
 
 # Actual state
 REG_FILE = [0] * NUM_REGS
+REG_FLOAT = 0
 
 # Decoder stuff
 R1_SEL = 0
@@ -52,7 +53,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCDH',
     'ADDc',
     'GCAR',
-    'DEC'
+    'DEC',
+    'SFL'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -67,8 +69,8 @@ def decode(insn):
 
     if opcode == 10:
         R1_SEL = 7
-    elif opcode == INSNS['DEC']:
-        R1_SEL = 32
+    # elif opcode == INSNS['DEC']:
+        # R1_SEL = 32
     else:
         R1_SEL = ((insn & MASK_RS) >> 5)
     # R1_SEL = 7 if opcode == 10 else ((insn & MASK_RS) >> 5)
@@ -86,7 +88,8 @@ def decode(insn):
             opcode == 0b10100 or # TCS
             opcode == 0b10101 or # TCDH
             opcode == 0b10110 or # ADDc
-            opcode == INSNS['DEC'])   # DEC
+            opcode == INSNS['DEC'] or # DEC
+            opcode == INSNS['SFL'])   # SFL
 
 
     R2_SEL = insn & MASK_RT
@@ -102,16 +105,16 @@ def decode(insn):
 
     if opcode == 0b01000:
         WSEL = 7
-    elif opcode == INSNS['DEC']:
-        WSEL = 32
+    # elif opcode == INSNS['DEC']:
+    #     WSEL = 32
     else:
         WSEL = ((insn & MASK_RD) >> 10)
 
     # WSEL = 7 if opcode == 0b01000 else ((insn & MASK_RD) >> 10)
 
-    NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000 or opcode == INSNS['GCAR']
+    NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000 or opcode == INSNS['GCAR'] or opcode == INSNS['SFL'] or opcode == INSNS['DEC']
 
-    REGFILE_WE = NZP_WE and (opcode != 0b10000 and opcode != 0b10011)
+    REGFILE_WE = NZP_WE and (opcode != 0b10000 and opcode != 0b10011 and opcode != INSNS['SFL'] and opcode != INSNS['DEC'])
 
     SELECT_PC_PLUS_ONE = opcode == 0b01000
 
@@ -238,8 +241,12 @@ def run_insns(insns, outfile, debug_file):
             alu_out = carry
 
         elif opcode == INSNS['DEC']:
-            alu_out = REG_FILE[rs] - 1
-            print 'DEC', pc, rs, REG_FILE[rs], alu_out, REGFILE_WE, NZP_WE
+            REG_FLOAT -= 1
+            alu_out = REG_FLOAT
+
+        elif opcode == INSN['SFL']:
+            REG_FLOAT = REG_FILE[rs]
+            alu_out = REG_FILE[rs]
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out
