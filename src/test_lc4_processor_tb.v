@@ -44,11 +44,11 @@ module test_lc4_processor_tb();
    wire        dmem_we;
 
    wire [1:0]  test_stall;       // Testbench: is this is stall cycle? (don't compare the test values)
-   wire [INSN:0] test_pc;          // Testbench: program counter
+   wire [IADDR:0] test_pc;          // Testbench: program counter
    wire [INSN:0] test_insn;        // Testbench: instruction bits
    wire        test_regfile_we;  // Testbench: register file write enable
-   wire [REG_ADDR_BITS-1:0]  test_regfile_reg; // Testbench: which register to write in the register file
-   wire [WORD_SIZE-1:0] test_regfile_in;  // Testbench: value to write into the register file
+   wire [REG_ADDR_BITS-1:0]  test_wsel; // Testbench: which register to write in the register file
+   wire [WORD_SIZE-1:0] test_wdata;  // Testbench: value to write into the register file
    wire        test_nzp_we;      // Testbench: NZP condition codes write enable
    wire [2:0]  test_nzp_new_bits;      // Testbench: value to write to NZP bits
    wire        test_dmem_we;     // Testbench: data memory write enable
@@ -58,13 +58,10 @@ module test_lc4_processor_tb();
    reg  [IADDR:0] verify_pc;
    reg  [INSN:0] verify_insn;
    reg         verify_regfile_we;
-   reg  [2:0]  verify_regfile_reg;
-   reg  [WORD_SIZE-1:0] verify_regfile_in;
+   reg  [REG_ADDR_BITS-1:0]  verify_wsel;
+   reg  [WORD_SIZE-1:0] verify_wdata;
    reg         verify_nzp_we;
    reg  [2:0]  verify_nzp_new_bits;
-   reg         verify_dmem_we;
-   reg  [15:0] verify_dmem_addr;
-   reg  [WORD_SIZE-1:0] verify_dmem_data;
    reg [15:0]  file_status;
 
 
@@ -109,17 +106,13 @@ module test_lc4_processor_tb();
                             .o_dmem_towrite(dmem_tworite),
                             .i_cur_dmem_data(cur_dmem_data),
                             .o_dmem_we(dmem_we),
-                            .test_stall(test_stall),
-                            .test_cur_pc(test_pc),
-                            .test_cur_insn(test_insn),
+                            .test_pc(test_pc),
+                            .test_insn(test_insn),
                             .test_regfile_we(test_regfile_we),
-                            .test_regfile_wsel(test_regfile_reg),
-                            .test_regfile_data(test_regfile_in),
+                            .test_wsel(test_wsel),
+                            .test_wdata(test_wdata),
                             .test_nzp_we(test_nzp_we),
-                            .test_nzp_new_bits(test_nzp_new_bits),
-                            .test_dmem_we(test_dmem_we),
-                            .test_dmem_addr(test_dmem_addr),
-                            .test_dmem_data(test_dmem_data)
+                            .test_nzp_new_bits(test_nzp_new_bits)
                             );
 
    initial begin
@@ -168,150 +161,102 @@ module test_lc4_processor_tb();
                            //verify_dmem_we,
                            //verify_dmem_addr,
                            //verify_dmem_data)
-      while (1 == $fscanf(input_file, "%h", verify_insn)) begin
-
+      while (7 == $fscanf(input_file, "%h %b %h %h %b %b %b"
+                                          , verify_pc
+                                          , verify_insn
+                                          , verify_wdata
+                                          , verify_wsel
+                                          , verify_regfile_we
+                                          , verify_nzp_we
+                                          , verify_nzp_new_bits)) begin
          linenum = linenum + 1;
 
          if (linenum % 10000 == 0) begin
             $display("Instruction number: %d", linenum);
          end
+         next_instruction = 0;
+         while (!next_instruction) begin
 
-         if (output_file) begin
-            $fdisplay(output_file, "%h %b %h %h %h %h %h %h %h %h",
-                      verify_pc,
-                      verify_insn,
-                      verify_regfile_we,
-                      verify_regfile_reg,
-                      verify_regfile_in,
-                      verify_nzp_we,
-                      verify_nzp_new_bits,
-                      verify_dmem_we,
-                      verify_dmem_addr,
-                      verify_dmem_data);
-         end
-
-         next_instruction = 0;  // false
-         while (!next_instruction | 1'b1) begin
-
-            if (output_file) begin
-              $fdisplay(output_file, "%h %b %h %h %h %h %h %h %h %h",
-                        verify_pc,
-                        verify_insn,
-                        verify_regfile_we,
-                        verify_regfile_reg,
-                        verify_regfile_in,
-                        verify_nzp_we,
-                        verify_nzp_new_bits,
-                        verify_dmem_we,
-                        verify_dmem_addr,
-                        verify_dmem_data);
-            end
-
-            if (test_stall == 2'd0) begin
-               num_exec = num_exec + 1;
-               next_instruction = 1;  // true
-            end
-
-            if (test_stall === 2'd1) begin
-               num_cache_stall = num_cache_stall + 1;
-            end
-
-            if (test_stall === 2'd2) begin
-               num_branch_stall = num_branch_stall + 1;
-            end
-
-            if (test_stall === 2'd3) begin
-               num_load_stall = num_load_stall + 1;
-            end
+         //if (output_file) begin
+            //$fdisplay(output_file, "%h %b %h %h %h %h %h %h %h %h",
+                      //verify_pc,
+                      //verify_insn,
+                      //verify_regfile_we,
+                      //verify_wsel,
+                      //verify_regfile_in,
+                      //verify_nzp_we,
+                      //verify_nzp_new_bits,
+                      //verify_dmem_we,
+                      //verify_dmem_addr,
+                      //verify_dmem_data);
+         //end
+            next_instruction = 1;  // true
 
             if (next_instruction) begin
 
                // Check it before fetching the next instruction
 
-               //// pc
-               //if (verify_pc !== test_pc) begin
-                  //$display( "Error at line %d: pc should be %h (but was %h)",
-                            //linenum, verify_pc, test_pc);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// insn
-               //if (verify_insn !== test_insn) begin
-                  //$write("Error at line %d: insn should be %h (", linenum, verify_insn);
-                  //// pinstr(verify_insn);
-                  //$write(") but was %h (", test_insn);
-                  //// pinstr(test_insn);
-                  //$display(")");
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// regfile_we
-               //if (verify_regfile_we !== test_regfile_we) begin
-                  //$display( "Error at line %d: regfile_we should be %h (but was %h)",
-                            //linenum, verify_regfile_we, test_regfile_we);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// regfile_reg
-               //if (verify_regfile_we && verify_regfile_reg !== test_regfile_reg) begin
-                  //$display( "Error at line %d: regfile_reg should be %h (but was %h)",
-                            //linenum, verify_regfile_reg, test_regfile_reg);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// regfile_in
-               //if (verify_regfile_we && verify_regfile_in !== test_regfile_in) begin
-                  //$display( "Error at line %d: regfile_in should be %h (but was %h)",
-                            //linenum, verify_regfile_in, test_regfile_in);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// verify_nzp_we
-               //if (verify_nzp_we !== test_nzp_we) begin
-                  //$display( "Error at line %d: nzp_we should be %h (but was %h)",
-                            //linenum, verify_nzp_we, test_nzp_we);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// verify_nzp_new_bits
-               //if (verify_nzp_we && verify_nzp_new_bits !== test_nzp_new_bits) begin
-                  //$display( "Error at line %d: nzp_new_bits should be %h (but was %h)",
-                            //linenum, verify_nzp_new_bits, test_nzp_new_bits);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// verify_dmem_we
-               //if (verify_dmem_we !== test_dmem_we) begin
-                  //$display( "Error at line %d: dmem_we should be %h (but was %h)",
-                            //linenum, verify_dmem_we, test_dmem_we);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// dmem_addr
-               //if (verify_dmem_addr !== test_dmem_addr) begin
-                  //$display( "Error at line %d: dmem_addr should be %h (but was %h)",
-                            //linenum, verify_dmem_addr, test_dmem_addr);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-
-               //// dmem_data
-               //if (verify_dmem_data !== test_dmem_data) begin
-                  //$display( "Error at line %d: dmem_data should be %h (but was %h)",
-                            //linenum, verify_dmem_data, test_dmem_data);
-                  //errors = errors + 1;
-                  //$finish;
-               //end
-               if (test_insn === 20'h88000) begin
+               // pc
+               if (verify_pc !== test_pc) begin
+                  $display( "Error at line %d: pc should be %h (but was %h)",
+                            linenum, verify_pc, test_pc);
+                  errors = errors + 1;
                   $finish;
+               end
+
+               // insn
+               if (verify_insn !== test_insn) begin
+                  $write("Error at line %d: insn should be %h (", linenum, verify_insn);
+                  // pinstr(verify_insn);
+                  $write(") but was %h (", test_insn);
+                  // pinstr(test_insn);
+                  $display(")");
+                  errors = errors + 1;
+                  $finish;
+               end
+
+               // regfile_we
+               if (verify_regfile_we !== test_regfile_we) begin
+                  $display( "Error at line %d: regfile_we should be %h (but was %h)",
+                            linenum, verify_regfile_we, test_regfile_we);
+                  errors = errors + 1;
+                  $finish;
+               end
+
+               // wsel
+               if (verify_regfile_we && verify_wsel !== test_wsel) begin
+                  $display( "Error at line %d: wsel should be %h (but was %h)",
+                            linenum, verify_wsel, test_wsel);
+                  errors = errors + 1;
+                  $finish;
+               end
+
+               // wdata
+               if (verify_regfile_we && verify_wdata !== test_wdata) begin
+                  $display( "Error at line %d: wdata should be %h (but was %h)",
+                            linenum, verify_wdata, test_wdata);
+                  errors = errors + 1;
+                  $finish;
+               end
+
+               // verify_nzp_we
+               if (verify_nzp_we !== test_nzp_we) begin
+                  $display( "Error at line %d: nzp_we should be %h (but was %h)",
+                            linenum, verify_nzp_we, test_nzp_we);
+                  errors = errors + 1;
+                  $finish;
+               end
+
+               // verify_nzp_new_bits
+               if (verify_nzp_we && verify_nzp_new_bits !== test_nzp_new_bits) begin
+                  $display( "Error at line %d: nzp_new_bits should be %h (but was %h)",
+                            linenum, verify_nzp_new_bits, test_nzp_new_bits);
+                  errors = errors + 1;
+                  $finish;
+               end
+               if (test_insn === 20'h88000) begin
+                  $display("Hit done instruction");
+                  //$finish;
                end
             end // if (next_instruction)
 
@@ -323,7 +268,6 @@ module test_lc4_processor_tb();
          end // while (!next_instruction)
 
       end // while (10 == $fscanf(input_file, "%h %b %h %h %h %h %h %h %h %h",...
-
 
       if (input_file) $fclose(input_file);
       if (output_file) $fclose(output_file);

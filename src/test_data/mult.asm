@@ -4,7 +4,6 @@
 ;; reference:
 
 
-
 MULT_SR CONST R6, #0  ; R6 <- 0, Both P or Both N
 ;ADD R0, R30, #0
 ;ADD R2, R0, R31
@@ -43,8 +42,7 @@ CHKH R6                 ; is R0 0 or 1
 BRz LBL_END_MULT
 TCS R2                  ; R2 is low bits
 TCDH R1                 ; R1 is high bits
-LBL_END_MULT ADD R1, R1, R2          ;TODO delte me
-DONE       ; Return
+LBL_END_MULT DONE      ; Return
 
 
 

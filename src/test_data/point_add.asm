@@ -1,6 +1,3 @@
-
-
-
 ;; POINT_ADD requirements
 ; R23 <- 2 * d
 ;; pt1
@@ -150,8 +147,7 @@ ADD R24, R24, #0 ; printing for debuging
 ADD R25, R25, #0 ; printing for debuging
 ADD R26, R26, #0 ; printing for debuging
 ADD R27, R27, #0 ; printing for debuging
-DONE          ; Return
-
+DONE
 
 
 ;; NOTE assumes that R2 and R3 are populated with the x and y
@@ -245,7 +241,8 @@ ADD R3, R1, R3   ; R3 = R3 + p[WORD_SIZE-2]
 ADD R2, R4, #0   ; R2 = R4
 ADD R1, R3, #0   ; R1 = R3
 BRnp LBL_MOD      ; If top bits aren't empty, then need to run mod again
-SUB R4, R16, R2   ; Check if R16 > R2
+ADD R0, R16, #0
+SUB R4, R0, R2   ; Check if R16 > R2
 BRnz LBL_MOD
 ADD R0, R2, #0   ; Move result into R0
 CHKL R5                 ; is R0 0 or 1

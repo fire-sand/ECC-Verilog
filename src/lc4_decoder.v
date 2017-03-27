@@ -49,7 +49,8 @@ module lc4_decoder(insn,
                  opcode == 5'b10011 | // CHKH
                  opcode == 5'b10100 | // TCS
                  opcode == 5'b10101 | // TCDH
-                 opcode == 5'b10110 ; // ADDc
+                 opcode == 5'b10110 | // ADDc
+                 opcode == 5'b11001; // SFL
 
 
 
@@ -72,10 +73,16 @@ module lc4_decoder(insn,
 
    assign nzp_we = r1re |
                         opcode == 5'b01011 | // CONST
-                        opcode == 5'b01000; // JSR
+                        opcode == 5'b01000 | // JSR
+                        opcode == 5'b10111 | // GCAR
+                        opcode == 5'b11000 | // DEC
+                        opcode == 5'b11001;  // SFL
+
    assign regfile_we = nzp_we &
                  (opcode != 5'b10000 & // CHKL
-                 opcode != 5'b10011); // CHKH
+                 opcode != 5'b10011 & // CHKH
+                 opcode != 5'b11000 &  // DEC
+                 opcode != 5'b11001);  // SFL
    assign select_pc_plus_one = opcode == 5'b01000; // JSR
    assign is_control_insn = opcode == 5'b01000 | // JSR
                             opcode == 5'b01010; // RTI

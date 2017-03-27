@@ -10,10 +10,9 @@
 module lc4_processor(clk, rst, gwe,
                      o_cur_pc, i_cur_insn, o_dmem_raddr, o_dmem_waddr,
                      i_cur_dmem_data, o_dmem_we, o_dmem_towrite,
-                     test_stall, test_cur_pc, test_cur_insn,
-                     test_regfile_we, test_regfile_wsel, test_regfile_data,
-                     test_nzp_we, test_nzp_new_bits,
-                     test_dmem_we, test_dmem_addr, test_dmem_data
+                     test_pc, test_insn,
+                     test_regfile_we, test_wsel, test_wdata,
+                     test_nzp_we, test_nzp_new_bits
                      );
 
    /* DO NOT MODIFY THIS CODE */
@@ -33,20 +32,25 @@ module lc4_processor(clk, rst, gwe,
    output        o_dmem_we;          // Data memory write enable
    output [WORD_SIZE-1:0] o_dmem_towrite;     // Value to write to data memory
 
-   output [1:0]  test_stall;         // Testbench: is this is stall cycle? (don't compare the test values)
-   output [INSN:0] test_cur_pc;        // Testbench: program counter
-   output [INSN:0] test_cur_insn;      // Testbench: instruction bits
-   output        test_regfile_we;    // Testbench: register file write enable
-   output [REG_ADDR_BITS-1:0]  test_regfile_wsel;  // Testbench: which register to write in the register file
-   output [WORD_SIZE-1:0] test_regfile_data;  // Testbench: value to write into the register file
-   output        test_nzp_we;        // Testbench: NZP condition codes write enable
-   output [2:0]  test_nzp_new_bits;  // Testbench: value to write to NZP bits
-   output        test_dmem_we;       // Testbench: data memory write enable
-   output [REG_ADDR_BITS-1:0] test_dmem_addr;     // Testbench: address to read/write memory
-   output [WORD_SIZE-1:0] test_dmem_data;     // Testbench: value read/writen from/to memory
+   output  [IADDR:0] test_pc;
+   output  [INSN:0] test_insn;
+   output         test_regfile_we;
+   output  [REG_ADDR_BITS-1:0]  test_wsel;
+   output  [WORD_SIZE-1:0] test_wdata;
+   output         test_nzp_we;
+   output  [2:0]  test_nzp_new_bits;
 
-   // Always execute one instruction each cycle
-   assign test_stall = 2'b0;
+   //output [1:0]  test_stall;         // Testbench: is this is stall cycle? (don't compare the test values)
+   //output [INSN:0] test_cur_pc;        // Testbench: program counter
+   //output [INSN:0] test_cur_insn;      // Testbench: instruction bits
+   //output        test_regfile_we;    // Testbench: register file write enable
+   //output [REG_ADDR_BITS-1:0]  test_regfile_wsel;  // Testbench: which register to write in the register file
+   //output [WORD_SIZE-1:0] test_regfile_data;  // Testbench: value to write into the register file
+   //output        test_nzp_we;        // Testbench: NZP condition codes write enable
+   //output [2:0]  test_nzp_new_bits;  // Testbench: value to write to NZP bits
+   //output        test_dmem_we;       // Testbench: data memory write enable
+   //output [REG_ADDR_BITS-1:0] test_dmem_addr;     // Testbench: address to read/write memory
+   //output [WORD_SIZE-1:0] test_dmem_data;     // Testbench: value read/writen from/to memory
 
    // pc wires attached to the PC register's ports
    wire [IADDR:0]   pc;      // Current program counter (read out from pc_reg)
@@ -96,11 +100,14 @@ module lc4_processor(clk, rst, gwe,
 
    //ALU
    wire[WORD_SIZE-1:0] r1_in;
+   wire[WORD_SIZE-1:0] r2_in;
    wire[WORD_SIZE-1:0] alu_out;
    assign r1_in = (r1sel === 5'b0 | r1sel === 5'b1) ? r1data : r2data;
+   assign r2_in = (r2sel === 5'b0 | r2sel === 5'b1) ? r1data : r2data;
+
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
-      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2data, carry_reg_out, carry_alu_out, alu_out);
+      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2_in, carry_reg_out, float_reg_in, carry_alu_out, float_alu_out, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;
@@ -124,11 +131,16 @@ module lc4_processor(clk, rst, gwe,
    wire[2:0] nzp_reg_out;
    Nbit_reg #(3) nzp_reg (nzp_calc_out, nzp_reg_out, clk, nzp_we, gwe, rst);
 
-   wire carry_reg_in;
    wire carry_reg_out;
    wire carry_alu_out;
-   wire reg_input = (i_cur_insn[19:15] === 5'b10100) ? !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]) : carry_alu_out;
-   Nbit_reg #(1) carry_reg (reg_input, carry_reg_out, clk, 1'b1, gwe, rst);
+   wire carry_reg_in = (i_cur_insn[19:15] === 5'b10100) ? !(r2data[WORD_SIZE-1] | alu_out[WORD_SIZE-1]) : carry_alu_out;
+   Nbit_reg #(1) carry_reg (carry_reg_in, carry_reg_out, clk, 1'b1, gwe, rst);
+
+   wire [8:0]  float_reg_out;
+   wire [8:0]  float_alu_out;
+   Nbit_reg #(9) float_reg (float_alu_out, float_reg_out, clk, 1'b1, gwe, rst);
+
+
 
    wire[2:0] nzp_out;
    assign nzp_out = (nzp_we == 1'b1) ? nzp_calc_out : nzp_reg_out;
@@ -148,16 +160,13 @@ module lc4_processor(clk, rst, gwe,
    //assign outputs
    assign o_cur_pc = pc;           // Address to read from instruction memory
 
-   assign test_cur_pc = pc;        // Testbench: program counter
-   assign test_cur_insn = i_cur_insn;      // Testbench: instruction bits
+   assign test_pc = pc;        // Testbench: program counter
+   assign test_insn = i_cur_insn;      // Testbench: instruction bits
    assign test_regfile_we = regfile_we;    // Testbench: register file write enable
-   assign test_regfile_wsel = wsel;  // Testbench: which register to write in the register file
-   assign test_regfile_data = wdata;  // Testbench: value to write into the register file
+   assign test_wsel = wsel;  // Testbench: which register to write in the register file
+   assign test_wdata = wdata;  // Testbench: value to write into the register file
    assign test_nzp_we = nzp_we;        // Testbench: NZP condition codes write enable
    assign test_nzp_new_bits = nzp_out;  // Testbench: value to write to NZP bits
-   assign test_dmem_we = is_store;       // Testbench: data memory write enable
-   assign test_dmem_addr = 0;     // Testbench: address to read/write memory
-   assign test_dmem_data = 0;     // Testbench: value read/writen from/to memory
 
 
    // For in-simulator debugging, you can use code such as the code

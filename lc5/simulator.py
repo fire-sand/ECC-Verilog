@@ -244,17 +244,26 @@ def run_insns(insns, outfile, debug_file):
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out
         reg_input_mux_out = control_out
-        wdata = reg_input_mux_out
+        wdata = reg_input_mux_out & (pow(2,256)-1)
 
-        nzp_calc_out = nzp_calc(reg_input_mux_out)
+        nzp_calc_out = nzp_calc(wdata)
         nzp_out = nzp_calc_out if NZP_WE else NZP
 
         branch_out = branch_logic(IS_BRANCH, IS_CONTROL_INSN, NZP, insn)
         next_pc = alu_out if branch_out else pc_plus_one
 
         # Print pc (hex), insn (binary), regfile_we, regfile_reg, regfile_in, nzp_we, nzp_new_bits
-        output = '{:0{}x} {:0{}b} {:x} {:0{}x} {:0{}x} {:x} {:0{}b}\n'.format(
-            pc, 3, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 2, wdata, 64, NZP_WE, nzp_calc_out, 3)
+        # output = '{:0{}x} {:0{}b} {:x} {:0{}x} {:0{}x} {:x} {:0{}b}\n'.format(
+            # pc, 3, insn, INSN_BIT_WIDTH, REGFILE_WE, rd, 2, wdata, 64, NZP_WE, nzp_calc_out, 3)
+        output = '{:0{}x} {:0{}b} {:0{}x} {:0{}x} {:b} {:b} {:0{}b}\n'.format(
+            pc, 3,
+            insn, INSN_BIT_WIDTH,
+            wdata & (pow(2, 256) - 1), 64,
+            rd, 2,
+            REGFILE_WE,
+            NZP_WE,
+            nzp_calc_out, 3)
+
 
         debug_output = '{:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}x} {:0{}b}\n'.format(
             pc, 3, insn, INSN_BIT_WIDTH / 4, REG_FILE[rs] & (pow(2, 256) - 1), 64, REG_FILE[rt] & (pow(2, 256) - 1), 64, wdata & (pow(2, 256) - 1), 64, nzp_calc_out, 3)
