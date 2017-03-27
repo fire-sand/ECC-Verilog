@@ -18,8 +18,21 @@
 POINT_ADD_SR ADD R0, R25, #0 ; R0 <- Y1, Need to do this move because of Proc
 ADD R22, R7, #0 ; Save PC of RET
 SUB R2, R0, R24 ; R2 <- Y1 - X1
+GCAR R4 		; Get carry from subtraction
+CONST R1, #0	; 0 out R1
+SUB R1, R1, R4 	; sign extend subtraction
+JSR MOD_SR 		; mod subtraction
+ADD R6, R0, #0  ; put result in R6
 ADD R0, R29, #0 ; R0 <- Y2, Need to do this because of Proc
-SUB R3, R0, R28 ; R3 <- Y2 - X2
+SUB R2, R0, R28 ; R2 <- Y2 - X2
+GCAR R4 		; Get carry from subtraction
+CONST R1, #0 	; 0 out R1
+SUB R1, R1, R4 	; sign extend subtraction
+JSR MOD_SR 		; mod subtraction
+ADD R2, R0, #0 	; put result in R2
+ADD R3, R6, #0  ; put first sub in R3
+CONST R4, #0 	; 0 out R4
+CONST R5, #0 	; 0 out R5
 JSR MULT_SR     ; Mult result in R1, R2
 JSR MOD_SR      ; Mod result in R0
 ADD R8, R0, #0  ; R8 <- A
@@ -66,7 +79,9 @@ ADD R11, R0, #0 ; R11 <- D
 ; E = (B-A) % q
 ADD R0, R9, #0  ; R0 <- B
 SUB R2, R0, R8  ; R2 <- B - A
+GCAR R4
 CONST R1, #0    ; R1 <- 0 for mod
+SUB R1, R1, R4 ;  Handles negative numbers for sub
 JSR MOD_SR      ; Mod result in R0
 ADD R12, R0, #0 ; R12 <- E
 
@@ -135,7 +150,7 @@ ADD R24, R24, #0 ; printing for debuging
 ADD R25, R25, #0 ; printing for debuging
 ADD R26, R26, #0 ; printing for debuging
 ADD R27, R27, #0 ; printing for debuging
-DONE            ; Return
+DONE          ; Return
 
 
 
