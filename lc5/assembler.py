@@ -32,7 +32,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCS',
     'TCDH',
     'ADDc',
-    'GCAR'
+    'GCAR',
+    'DEC'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {

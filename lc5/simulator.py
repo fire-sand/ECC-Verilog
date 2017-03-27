@@ -2,7 +2,7 @@ import sys
 
 WORD_SIZE = 256
 INSN_BIT_WIDTH = 20
-NUM_REGS = 32
+NUM_REGS = 33
 
 NUM_ITERS = 10
 
@@ -51,7 +51,8 @@ INSNS = {insn: i for i, insn in enumerate([
     'TCS',
     'TCDH',
     'ADDc',
-    'GCAR'
+    'GCAR',
+    'DEC'
 ])}
 
 LABELLED_INSNS = {INSNS[insn] for insn in {
@@ -64,7 +65,13 @@ def decode(insn):
     opcode = insn >> 15
     IS_BRANCH = 0 <= opcode <= 4
 
-    R1_SEL = 7 if opcode == 10 else ((insn & MASK_RS) >> 5)
+    if opcode == 10:
+        R1_SEL = 7
+    elif opcode == INSNS['DEC']:
+        R1_SEL = 32
+    else:
+        R1_SEL = ((insn & MASK_RS) >> 5)
+    # R1_SEL = 7 if opcode == 10 else ((insn & MASK_RS) >> 5)
     R1_RE = (opcode == 0b00101 or # ADD
             opcode == 0b00110 or # SUB
             opcode == 0b00111 or # ADD I
@@ -78,7 +85,8 @@ def decode(insn):
             opcode == 0b10011 or # CHKH
             opcode == 0b10100 or # TCS
             opcode == 0b10101 or # TCDH
-            opcode == 0b10110)   # ADDc
+            opcode == 0b10110 or # ADDc
+            opcode == INSNS['DEC'])   # DEC
 
 
     R2_SEL = insn & MASK_RT
@@ -92,7 +100,14 @@ def decode(insn):
             opcode == 0b10100 or # TCS
             opcode == 0b10101)   # TCDH
 
-    WSEL = 7 if opcode == 0b01000 else ((insn & MASK_RD) >> 10)
+    if opcode == 0b01000:
+        WSEL = 7
+    elif opcode == INSNS['DEC']:
+        WSEL = 32
+    else:
+        WSEL = ((insn & MASK_RD) >> 10)
+
+    # WSEL = 7 if opcode == 0b01000 else ((insn & MASK_RD) >> 10)
 
     NZP_WE = R1_RE or opcode == 0b01011 or opcode == 0b01000 or opcode == INSNS['GCAR']
 
@@ -134,7 +149,6 @@ def run_insns(insns, outfile, debug_file):
         rs = R1_SEL
         rt = R2_SEL
 
-        # TODO: Make sure to sign extend
         imm5 = sign_extend(insn & 0x1F, 5)
         imm9 = sign_extend(insn & 0x1FF, 9)
 
@@ -222,6 +236,10 @@ def run_insns(insns, outfile, debug_file):
 
         elif opcode == INSNS['GCAR']:
             alu_out = carry
+
+        elif opcode == INSNS['DEC']:
+            alu_out = REG_FILE[rs] - 1
+            print 'DEC', pc, rs, REG_FILE[rs], alu_out, REGFILE_WE, NZP_WE
 
 
         control_out = pc_plus_one if SELECT_PC_PLUS_ONE else alu_out
