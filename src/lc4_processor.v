@@ -107,7 +107,7 @@ module lc4_processor(clk, rst, gwe,
 
    //(i_insn, i_pc, i_r1data, i_r2data, o_result)
    lc4_alu #(.WORD_SIZE(WORD_SIZE))
-      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2_in, carry_reg_out, float_reg_in, carry_alu_out, float_alu_out, alu_out);
+      lc4alu (i_cur_insn, pc_plus_one, r1_in, r2_in, carry_reg_out, float_reg_out, carry_alu_out, float_alu_out, alu_out);
 
    //select_pc_plus_one,  PC+1 into R7
    wire[WORD_SIZE-1:0] control_mux_out;

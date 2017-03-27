@@ -244,7 +244,7 @@ def run_insns(insns, outfile, debug_file):
             REG_FLOAT -= 1
             alu_out = REG_FLOAT
 
-        elif opcode == INSN['SFL']:
+        elif opcode == INSNS['SFL']:
             REG_FLOAT = REG_FILE[rs]
             alu_out = REG_FILE[rs]
 

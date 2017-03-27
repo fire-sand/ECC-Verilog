@@ -41,7 +41,7 @@ module lc4_alu(i_insn, i_pc, i_r1data, i_r2data, carry,float, carry_out, float_o
    wire [IADDR:0] next_pc = i_pc + {{2{i_insn[8]}}, i_insn[8:0]};
 
    assign float_out = (opcode == 5'b11000) ? float - 1 :
-                      (opcode == 5'b11001) ? r1_data[8:0] : float;
+                      (opcode == 5'b11001) ? i_r1data[8:0] : float;
 
    assign o_result =
       (opcode == 5'b00000  | // NOP
